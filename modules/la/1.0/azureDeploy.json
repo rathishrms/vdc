@@ -177,7 +177,16 @@
         },
         "diagnostic-storageAccount-sasToken": {
             "type": "string",
+<<<<<<< HEAD
             "value": "[listAccountSas(variables('diagnostic-storageAccount-name'), '2018-07-01', variables('accountSasProperties')).accountSasToken]"
+=======
+            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('oms-workspace-name')), '2015-03-20').primarySharedKey]"
+        },
+        "oms-storage-id": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]"
+        
+>>>>>>> master
         }
     }
 }
