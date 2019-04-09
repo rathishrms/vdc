@@ -46,6 +46,10 @@
             "metadata": {
                 "description": "Region used when establishing the workspace"
             }
+        },
+        "utcYear": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyy')]"
         }
     },
     "variables": {
@@ -56,24 +60,37 @@
         "accountSasProperties": {
             "signedServices": "bt",
             "signedPermission": "acuw",
-            "signedExpiry": "2019-03-01T00:00:01Z",
+            "signedExpiry": "[concat(string(add(int(parameters('utcYear')), 100)), '-12-31T23:59:59Z')]",
             "signedResourceTypes": "co"
         }
     },
     "resources": [
         {
+            "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2015-11-01-preview",
             "name": "[variables('la-workspace-name')]",
             "location": "[parameters('location')]",
             "tags": {
-                "layer": "management"
+                "layer": "monitoring"
             },
-            "type": "Microsoft.OperationalInsights/workspaces",
             "properties": {
                 "sku": {
                     "name": "[parameters('service-tier')]"
                 },
                 "retentionInDays": "[parameters('data-retention')]"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings/Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2015-11-01-preview",
+            "name": "[variables('la-workspace-name')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "layer": "monitoring"
+            },
+            "name": "default",
+            "properties": {
+                "pricingTier": "Standard"
             }
         },
         {
@@ -99,7 +116,7 @@
                 "name": "Standard_LRS"
             },
             "tags": {
-                "layer": "management"
+                "layer": "monitoring"
             },
             "properties": {
                 "encryption": {
@@ -157,6 +174,10 @@
         "diagnostic-storageAccount-name": {
             "type": "string",
             "value": "[variables('diagnostic-storageAccount-name')]"
+        },
+        "diagnostic-storageAccount-sasToken": {
+            "type": "string",
+            "value": "[listAccountSas(variables('diagnostic-storageAccount-name'), '2018-07-01', variables('accountSasProperties')).accountSasToken]"
         }
     }
 }
