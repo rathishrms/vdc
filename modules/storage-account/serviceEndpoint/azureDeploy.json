@@ -2,14 +2,14 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storage-account-name": {
+        "storageAccount-name": {
             "type": "string"
         },
-        "storage-account-sku": {
+        "storageAccount-sku": {
             "type": "string",
             "defaultValue": "Standard_LRS"
         },
-        "storage-account-kind": {
+        "storageAccount-kind": {
             "type": "string",
             "defaultValue": "StorageV2"
         },
@@ -22,19 +22,19 @@
         {
             "comments": "----DIAGNOSTICS STORAGE ACCOUNT-----",
             "type": "Microsoft.Storage/storageAccounts",
-            "name": "[parameters('storage-account-name')]",
+            "name": "[parameters('storageAccount-name')]",
             "apiVersion": "2018-11-01",
             "location": "[resourceGroup().location]",
-            "kind": "[parameters('storage-account-kind')]",
+            "kind": "[parameters('storageAccount-kind')]",
             "sku": {
-                "name": "[parameters('storage-account-sku')]"
+                "name": "[parameters('storageAccount-sku')]"
             },
             "properties": {
                 "networkAcls": {
                     "bypass": "[parameters('network-acls').bypass]",
                     "defaultAction": "[parameters('network-acls').defaultAction]",
-                    "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storage-account-name')), '2018-11-01').networkAcls.virtualNetworkRules, concat(parameters('network-acls').virtualNetworkRules, reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storage-account-name')), '2018-11-01').networkAcls.virtualNetworkRules))]",
-                    "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storage-account-name')), '2018-11-01').networkAcls.ipRules, concat(parameters('network-acls').ipRules, reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storage-account-name')), '2018-11-01').networkAcls.ipRules))]"
+                    "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.virtualNetworkRules, concat(parameters('network-acls').virtualNetworkRules, reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.virtualNetworkRules))]",
+                    "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.ipRules, concat(parameters('network-acls').ipRules, reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.ipRules))]"
                 }
             }
         }

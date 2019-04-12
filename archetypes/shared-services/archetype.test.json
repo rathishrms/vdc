@@ -58,6 +58,7 @@
         "modules-to-deploy": [
             "la",
             "nsg",
+            "storage-account",
             "shared-services-net",
             "vgw",
             "vgw-connection",
@@ -83,6 +84,15 @@
                         "policy-path": "file(modules/la/1.0)"
                     },
                     "dependencies": []
+                },
+                {
+                    "module": "storage-account",
+                    "source": {
+                        "version": "serviceEndpoint"
+                    },
+                    "dependencies": [
+                        "la"
+                    ]
                 },
                 {
                     "module": "shared-services-net",

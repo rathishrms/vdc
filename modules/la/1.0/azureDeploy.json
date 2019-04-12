@@ -1155,11 +1155,11 @@
             "type": "string",
             "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('la-workspace-name')), '2015-03-20').primarySharedKey]"
         },
-        "diagnostic-storageAccount-name": {
+        "storageAccount-name": {
             "type": "string",
             "value": "[variables('diagnostic-storageAccount-name')]"
         },
-        "diagnostic-storageAccount-sasToken": {
+        "storageAccount-sasToken": {
             "type": "string",
             "value": "[listAccountSas(variables('diagnostic-storageAccount-name'), '2018-07-01', variables('accountSasProperties')).accountSasToken]"
         }
