@@ -30,6 +30,7 @@
                 "name": "[parameters('storageAccount-sku')]"
             },
             "properties": {
+                "supportsHttpsTrafficOnly": true,
                 "networkAcls": {
                     "bypass": "[parameters('network-acls').bypass]",
                     "defaultAction": "[parameters('network-acls').defaultAction]",

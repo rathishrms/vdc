@@ -46,6 +46,24 @@
             "metadata": {
                 "description": "Region used when establishing the workspace"
             }
+        },
+        "storageAccount-name": {
+            "type": "string",
+            "metadata": {
+                "description": "Diagnostic Storage Account name"
+            }
+        },
+        "storageAccount-resourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Log Analytics workspace resource identifier"
+            }
+        },
+        "storageAccount-accessKey": {
+            "type": "string",
+            "metadata": {
+                "description": "Diagnostic Storage Account key"
+            }
         }
     },
     "variables": {
@@ -940,7 +958,7 @@
                 },
                 {
                     "apiVersion": "2015-03-20",
-                    "name": "[concat(variables('diagnostic-storageAccount-name'),variables('la-workspace-name'))]",
+                    "name": "[concat(parameters('storageAccount-name'),variables('la-workspace-name'))]",
                     "type": "storageinsightconfigs",
                     "dependsOn": [
                         "[concat('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]"
@@ -954,8 +972,8 @@
                             "LinuxsyslogVer2v0"
                         ],
                         "storageAccount": {
-                            "id": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]",
-                            "key": "[listKeys(variables('diagnostic-storageAccount-name'),'2015-06-15').key1]"
+                            "id": "[parameters('storageAccount-resourceId')]",
+                            "key": "[parameters('storageAccount-accessKey')]"
                         }
                     }
                 },
@@ -1074,7 +1092,7 @@
         }
     ],
     "outputs": {
-        "la-id": {
+        "la-resourceId": {
             "type": "string",
             "value": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('la-workspace-name'))]"
         },

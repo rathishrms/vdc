@@ -56,9 +56,9 @@
     },
     "orchestration": {
         "modules-to-deploy": [
+            "diagnostic-storage-account",
             "la",
             "nsg",
-            "storage-account",
             "shared-services-net",
             "vgw",
             "vgw-connection",
@@ -76,22 +76,37 @@
             "custom-scripts": "file(scripts)",
             "modules": [
                 {
+                    "module": "diagnostic-storage-account",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "source": {
+                        "version": "storageV2-with-serviceEndpoint",
+                        "template-path": "file(modules/storage-account/storageV2-with-serviceEndpoint)",
+                        "parameters-path": "file(modules/storage-account/storageV2-with-serviceEndpoint)"
+                    },
+                    "dependencies": []
+                },
+                {
                     "module": "la",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
                     "source": {
                         "version": "1.0",
                         "template-path": "file(modules/la/1.0)",
                         "parameters-path": "file(modules/la/1.0)",
                         "policy-path": "file(modules/la/1.0)"
                     },
-                    "dependencies": []
+                    "dependencies": [
+                        "diagnostic-storage-account"
+                    ]
                 },
                 {
-                    "module": "storage-account",
+                    "module": "nsg",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
                     "source": {
-                        "version": "serviceEndpoint"
+                        "version": "latest"
                     },
                     "dependencies": [
-                        "la"
+                        "la",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {
@@ -102,16 +117,6 @@
                     },
                     "dependencies": [
                         "nsg"
-                    ]
-                },
-                {
-                    "module": "nsg",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
-                    "source": {
-                        "version": "latest"
-                    },
-                    "dependencies": [
-                        "la"
                     ]
                 },
                 {
