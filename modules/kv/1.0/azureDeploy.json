@@ -66,14 +66,14 @@
                 "description": "Specifies the SKU for the vault"
             }
         },
-        "oms-workspace-resourceGroup": {
+        "la-workspace-resourceGroup": {
             "type": "string",
             "minLength": 1,
             "metadata": {
                 "description": "Name of the Resource Group housing the OMS workspace."
             }
         },
-        "oms-workspace-name": {
+        "la-workspace-name": {
             "type": "string",
             "minLength": 1,
             "metadata": {
@@ -155,7 +155,7 @@
                     ],
                     "properties": {
                         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]",
-                        "workspaceId": "[resourceId(parameters('oms-workspace-resourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('oms-workspace-name'))]",
+                        "workspaceId": "[resourceId(parameters('la-workspace-resourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('la-workspace-name'))]",
                         "logs": [
                             {
                                 "category": "AuditEvent",

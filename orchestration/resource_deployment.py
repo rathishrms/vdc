@@ -337,7 +337,6 @@ class ResourceDeployment(object):
         # If module is of type Bash or Powershell,
         # execute custom script
         if  module_found is not None and\
-            module_found._type != '' and\
             module_found._type is not None:
             
             self._logger\
@@ -608,7 +607,9 @@ class ResourceDeployment(object):
                 self.create_default_resource_group_name(
                     dependent_module_found._module)
         elif module_found is not None and \
-             not module_found._create_resource_group:
+             not module_found._create_resource_group and\
+             module_found._dependencies is not None and\
+             len(module_found._dependencies) > 0:
             
             # Let's use the resource group name of the first dependency found.
             # This is the case when the resource specifies create-resource-group = false.

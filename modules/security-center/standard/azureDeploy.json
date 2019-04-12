@@ -46,6 +46,28 @@
             "properties": {
                 "pricingTier": "[variables('pricing')]"
             }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "StorageAccounts",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/VirtualMachines')]"
+            ],
+            "properties": {
+                "pricingTier": "[variables('pricing')]"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "Workspaces",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/StorageAccounts')]"
+            ],
+            "properties": {
+                "pricingTier": "[variables('pricing')]"
+            }
         }
     ],
     "outputs": {}
