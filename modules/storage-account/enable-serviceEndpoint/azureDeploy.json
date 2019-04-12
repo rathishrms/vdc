@@ -15,9 +15,28 @@
         },
         "network-acls": {
             "type": "object"
+        },
+        "vnet-id": {
+            "type": "string",
+            "metadata": {
+                "description": "Shared services Virtual Network resource identifier"
+            }
         }
     },
-    "variables": {},
+    "variables": {
+        "virtualNetwork-rules": {
+            "copy": [
+                {
+                    "name": "virtualNetworkRules",
+                    "count": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), 1, length(parameters('network-acls').virtualNetworkRules))]",
+                    "input": {
+                        "id": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), concat(parameters('vnet-id'), '/subnets/', parameters('network-acls').virtualNetworkRules[copyIndex('virtualNetworkRules')].subnet))]"
+                    }
+                }
+            ]
+        },
+        "empty-array": []
+    },
     "resources": [
         {
             "comments": "----DIAGNOSTICS STORAGE ACCOUNT-----",
@@ -34,8 +53,8 @@
                 "networkAcls": {
                     "bypass": "[parameters('network-acls').bypass]",
                     "defaultAction": "[parameters('network-acls').defaultAction]",
-                    "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.virtualNetworkRules, concat(parameters('network-acls').virtualNetworkRules, reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.virtualNetworkRules))]",
-                    "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.ipRules, concat(parameters('network-acls').ipRules, reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount-name')), '2018-11-01').networkAcls.ipRules))]"
+                    "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), variables('empty-array'), variables('virtualNetwork-rules').virtualNetworkRules)]",
+                    "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), variables('empty-array'), parameters('network-acls').ipRules)]"
                 }
             }
         }

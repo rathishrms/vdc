@@ -11,7 +11,7 @@
         "storageAccount-resourceId": {
             "type": "string",
             "metadata": {
-                "description": "Diagnostic Storage Account name"
+                "description": "Diagnostic Storage Account resource identifier"
             }
         },
         "network-security-groups": {

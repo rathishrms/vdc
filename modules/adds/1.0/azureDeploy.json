@@ -87,7 +87,7 @@
         "vnet-id": {
             "type": "string",
             "metadata": {
-                "description": "Shared services Virtual Network resource Id"
+                "description": "Shared services Virtual Network resource identifier"
             }
         },
         "vnet-resourceGroup": {

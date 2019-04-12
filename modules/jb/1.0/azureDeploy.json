@@ -2,65 +2,59 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "organization-name": {
-            "type": "string",
-            "metadata": {
-                 "description": "Organization name"
-             }
-        },
         "deployment-prefix": {
             "type": "string",
             "metadata": {
-                 "description": "Deployment prefix. E.g. Organization-DeploymentType"
-             }
+                "description": "Deployment prefix. E.g. Organization-DeploymentType"
+            }
         },
         "oms-workspace-id": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "WorkspaceId or CustomerId value of OMS. This value is referenced in OMS VM Extension"
             }
         },
         "oms-primary-shared-key": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "WorkspaceKey value of OMS. This value is referenced in OMS VM Extension"
             }
         },
-        "kv-uri":{  
-          "type":"string",
-          "metadata":{  
-              "description":"AKV URI"
-          }
+        "kv-uri": {
+            "type": "securestring",
+            "metadata": {
+                "description": "AKV URI"
+            }
         },
         "kv-id": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "AKV Resource Id"
             }
         },
-        "aad-principal-id":{  
-            "type":"string",
+        "aad-principal-id": {
+            "type": "securestring",
             "defaultValue": "",
-            "metadata":{  
+            "metadata": {
                 "description": "Azure Active Directory Service Principal ID"
             }
         },
-        "aad-certificate-thumb":{  
-            "type":"string",
+        "aad-certificate-thumb": {
+            "type": "securestring",
             "defaultValue": "",
-            "metadata":{  
+            "metadata": {
                 "description": "Azure Active Directory Thumbprint"
             }
         },
-        "aad-certificate-url":{  
-            "type":"string",
+        "aad-certificate-url": {
+            "type": "securestring",
             "defaultValue": "",
-            "metadata":{  
+            "metadata": {
                 "description": "Azure Active Directory Certificate URL. Certificate gets installed in the VMs"
             }
         },
         "jb-key": {
-            "type": "string",
+            "type": "securestring",
             "defaultValue": "",
             "metadata": {
                 "description": "Jumpbox AKV encryption key"
@@ -95,7 +89,7 @@
             "metadata": {
                 "description": "Name of the extension deployment."
             }
-        },        
+        },
         "admin-username": {
             "type": "string",
             "metadata": {
@@ -117,7 +111,6 @@
         },
         "windows-virtualMachine-size": {
             "type": "string",
-            "defaultValue": "Standard_DS1_v2",
             "metadata": {
                 "description": "Size of the jumpbox VMs."
             }
@@ -126,8 +119,7 @@
             "type": "string",
             "defaultValue": "Windows",
             "allowedValues": [
-                "Windows",
-                "Linux"
+                "Windows"
             ],
             "metadata": {
                 "description": "OS platform of the jumpbox VM image."
@@ -148,16 +140,14 @@
         },
         "linux-virtualMachine-size": {
             "type": "string",
-            "defaultValue": "Standard_DS1_v2",
             "metadata": {
                 "description": "Size of the jumpbox VMs."
             }
         },
         "linux-os-type": {
             "type": "string",
-            "defaultValue": "Windows",
+            "defaultValue": "Linux",
             "allowedValues": [
-                "Windows",
                 "Linux"
             ],
             "metadata": {
@@ -192,35 +182,41 @@
                 }
             ]
         },
-        "empty-array": {
-            "type": "array",
-            "defaultValue": []
+        "storageAccount-name": {
+            "type": "string",
+            "metadata": {
+                "description": "Diagnostic Storage Account name"
+            }
+        },
+        "storageAccount-sasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Diagnostic Storage Account SAS token"
+            }
+        },
+        "storageAccount-resourceId": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Log Analytics workspace resource identifier"
+            }
         }
     },
     "variables": {
         "resource-prefix": "[concat(parameters('deployment-prefix'), '-', parameters('extension-name'))]",
+        "uniqueString": "[uniqueString(subscription().id, resourceGroup().id, concat(parameters('deployment-prefix'), '-jb'))]",
         "windows-availabilitySet-name": "[concat(variables('resource-prefix'), '-win-as')]",
         "windows-virtualMachine-name-prefix": "[concat(variables('resource-prefix'), '-win-vm')]",
         "linux-virtualMachine-name-prefix": "[concat(variables('resource-prefix'), '-linux-vm')]",
         "linux-availabilitySet-name": "[concat(variables('resource-prefix'), '-linux-as')]",
         "subnet-id": "[concat(parameters('vnet-id'), '/subnets/', parameters('shared-services-subnet-name'))]",
-        "uniqueString": "[uniqueString(subscription().id, resourceGroup().id)]",
-        "diagnostic-storageAccount-prefix": "[concat(variables('resource-prefix'), parameters('extension-name'), 'diag')]",
-        "diagnostic-storageAccount-name": "[toLower(substring(replace(concat(variables('diagnostic-storageAccount-prefix'), variables('uniqueString'), variables('uniqueString')), '-', ''), 0, 23) )]",
         "antimalware-extension-name": "IaaSAntimalware",
         "diagnostics-extension-name": "IaaSDiagnostics",
         "networkWatcher-extension-name": "NetworkWatcher",
         "encryption-extension-name": "AzureDiskEncryption",
         "encryption-operation": "EnableEncryption",
+        "mma-extension-name": "OMSExtension",
         "key-encryptionAlgorithm": "RSA-OAEP",
-        "diagnostic-storageAccount-id": "[resourceId('Microsoft.Storage/storageAccounts/', variables('diagnostic-storageAccount-name'))]",
-        "wad-logs": "<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"Security!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"System!*[System[(Level = 1 or Level = 2)]]\" /></WindowsEventLog>",
-        "wad-perf-counters1": "<PerformanceCounters scheduledTransferPeriod=\"PT1M\"><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Processor Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU utilization\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Privileged Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU privileged time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% User Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU user time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor Information(_Total)\\Processor Frequency\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"CPU frequency\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\System\\Processes\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Processes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Thread Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Threads\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Handle Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Handles\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\% Committed Bytes In Use\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Memory usage\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Available Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory available\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Committed Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory committed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Commit Limit\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory commit limit\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active time\" locale=\"en-us\"/></PerformanceCounterConfiguration>",
-        "wad-perf-counters2": "<PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Read Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active read time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Write Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active write time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Transfers/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Reads/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk read operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Writes/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk write operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Read Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk read speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Write Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk write speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\LogicalDisk(_Total)\\% Free Space\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk free space (percentage)\" locale=\"en-us\"/></PerformanceCounterConfiguration></PerformanceCounters>",
-        "wad-cfgx-start": "[concat(variables('wad-logs'), variables('wad-perf-counters1'), variables('wad-perf-counters2'), '<Metrics resourceId=\"')]",
-        "wad-metrics-resource-id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name , '/providers/', 'Microsoft.Compute/virtualMachines/')]",
-        "wad-cfgx-end": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>",
-        "sequence-number": "[uniqueString(resourceGroup().id, 'linux', variables('resource-prefix'))]",
+        "empty-array": [],
         "jb-asg-id": "[resourceId(parameters('vnet-resourceGroup'),'Microsoft.Network/applicationSecurityGroups', concat(parameters('deployment-prefix'), '-', parameters('jb-asg-name'), '-asg'))]"
     },
     "resources": [
@@ -256,7 +252,7 @@
                             "subnet": {
                                 "id": "[variables('subnet-id')]"
                             },
-                            "applicationSecurityGroups":[
+                            "applicationSecurityGroups": [
                                 {
                                     "id": "[variables('jb-asg-id')]"
                                 }
@@ -264,29 +260,6 @@
                         }
                     }
                 ]
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[variables('diagnostic-storageAccount-name')]",
-            "apiVersion": "2017-06-01",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "Standard_LRS"
-            },
-            "kind": "Storage",
-            "tags": {
-                "displayName": "Jumpbox Diagnostic Storage Account"
-            },
-            "properties": {
-                "encryption": {
-                    "keySource": "Microsoft.Storage",
-                    "services": {
-                        "blob": {
-                            "enabled": true
-                        }
-                    }
-                }
             }
         },
         {
@@ -301,7 +274,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/availabilitySets', variables('windows-availabilitySet-name'))]",
                 "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1), '-nic'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts',variables('diagnostic-storageAccount-name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts',parameters('storageAccount-name'))]"
             ],
             "properties": {
                 "availabilitySet": {
@@ -311,7 +284,7 @@
                     "computerName": "[concat(parameters('extension-name'), '-win-vm',copyindex(1))]",
                     "adminUsername": "[parameters('admin-username')]",
                     "adminPassword": "[parameters('admin-password')]",
-                    "secrets": "[if(equals(parameters('enable-encryption'), bool('false')), parameters('empty-array'), parameters('encryption-secrets'))]"
+                    "secrets": "[if(equals(parameters('enable-encryption'), bool('false')), variables('empty-array'), parameters('encryption-secrets'))]"
                 },
                 "hardwareProfile": {
                     "vmSize": "[parameters('windows-virtualMachine-size')]"
@@ -324,7 +297,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[replace(toLower(substring(concat(variables('windows-virtualMachine-name-prefix'), copyindex(1), '-osdisk', '-', replace(concat(variables('uniqueString'), variables('uniqueString')), '-', '')), 0, 40)), '-', '')]",                        
+                        "name": "[replace(toLower(substring(concat(variables('windows-virtualMachine-name-prefix'), copyindex(1), '-osdisk', '-', replace(concat(variables('uniqueString'), variables('uniqueString')), '-', '')), 0, 40)), '-', '')]",
                         "osType": "[parameters('windows-os-type')]",
                         "createOption": "FromImage"
                     }
@@ -339,7 +312,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('diagnostic-storageAccount-name')), '2016-12-01').primaryEndpoints.blob)]"
+                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccount-name')), '2016-12-01').primaryEndpoints.blob)]"
                     }
                 }
             },
@@ -353,16 +326,16 @@
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]"
                     ],
                     "properties": {
-                      "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-                      "type": "MicrosoftMonitoringAgent",
-                      "typeHandlerVersion": "1.0",
-                      "autoUpgradeMinorVersion": true,
-                      "settings": {
-                        "workspaceId": "[parameters('oms-workspace-id')]"
-                      },
-                      "protectedSettings": {
-                        "workspaceKey": "[parameters('oms-primary-shared-key')]"
-                      }
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "workspaceId": "[parameters('oms-workspace-id')]"
+                        },
+                        "protectedSettings": {
+                            "workspaceKey": "[parameters('oms-primary-shared-key')]"
+                        }
                     }
                 },
                 {
@@ -372,7 +345,7 @@
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]",
-                        "OMSExtension"
+                        "[variables('mma-extension-name')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Security",
@@ -394,254 +367,11 @@
                 {
                     "type": "extensions",
                     "name": "[variables('diagnostics-extension-name')]",
+                    "apiVersion": "2017-12-01",
                     "location": "[resourceGroup().location]",
-                    "apiVersion": "2017-03-30",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Diagnostics",
-                        "type": "IaaSDiagnostics",
-                        "typeHandlerVersion": "1.5",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "xmlCfg": "[base64(concat(variables('wad-cfgx-start'), variables('wad-metrics-resource-id'), variables('windows-virtualMachine-name-prefix'), copyindex(1), variables('wad-cfgx-end')))]",
-                            "storageAccount": "[variables('diagnostic-storageAccount-name')]"
-                        },
-                        "protectedSettings": {
-                            "storageAccountName": "[variables('diagnostic-storageAccount-name')]",
-                            "storageAccountKey": "[listkeys(variables('diagnostic-storageAccount-id'), '2016-12-01').keys[0])",
-                            "storageAccountEndPoint": "https://core.windows.net"
-                        }
-                    }
-                },
-                {
-                    "type": "extensions",
-                    "name": "[variables('networkWatcher-extension-name')]",
-                    "apiVersion": "2017-03-30",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.NetworkWatcher",
-                        "type": "NetworkWatcherAgentWindows",
-                        "typeHandlerVersion": "1.4",
-                        "autoUpgradeMinorVersion": true
-                    }
-                },
-                {
-                    "type": "extensions",
-                    "name": "[variables('encryption-extension-name')]",
-                    "apiVersion": "2017-03-30",
-                    "location": "[resourceGroup().location]",
-                    "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('antimalware-extension-name'))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('diagnostics-extension-name'))]",                        
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('networkWatcher-extension-name'))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Security",
-                        "type": "AzureDiskEncryption",
-                        "typeHandlerVersion": "1.1",
-                        "autoUpgradeMinorVersion": true,
-                        "forceUpdateTag": "1.0",
-                        "settings": {
-                            "AADClientID": "[parameters('aad-principal-id')]",
-                            "AADClientCertThumbprint": "[parameters('aad-certificate-thumb')]",
-                            "KeyVaultURL": "[parameters('kv-uri')]",
-                            "KeyEncryptionKeyURL": "[parameters('jb-key')]",
-                            "KeyEncryptionAlgorithm": "[variables('key-encryptionAlgorithm')]",
-                            "VolumeType": "All",
-                            "EncryptionOperation": "[variables('encryption-operation')]"
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "name": "[concat('vm', copyindex(1), 'OSEncryptionNestedDeployment')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-09-01",
-            "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
-            "dependsOn": [
-                "windowsVmLoop"
-            ],
-            "copy": {
-                "name": "vmWindowsEncryptLoop",
-                "count": "[parameters('windows-virtualMachine-count')]"
-            },
-            "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "resources": [
-                        {
-                            "apiVersion": "2017-03-30",
-                            "type": "Microsoft.Compute/virtualMachines",
-                            "name": "[concat(variables('windows-virtualMachine-name-prefix'), copyindex(1))]",
-                            "location": "[resourceGroup().location]",
-                            "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
-                            "properties": {
-                                "storageProfile": {
-                                    "osDisk": {
-                                        "encryptionSettings": {
-                                            "enabled": true,
-                                            "diskEncryptionKey": {
-                                                "sourceVault": {
-                                                    "id": "[parameters('kv-id')]"
-                                                },
-                                                "secretUrl": "[if(equals(parameters('enable-encryption'), bool('false')), json('null'), reference(resourceId('Microsoft.Compute/virtualMachines/extensions',  concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('encryption-extension-name'))).instanceView.statuses[0].message)]"
-                                            },
-                                            "keyEncryptionKey": {
-                                                "sourceVault": {
-                                                    "id": "[parameters('kv-id')]"
-                                                },
-                                                "keyUrl": "[parameters('jb-key')]"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                },
-                "parameters": {}
-            }
-        },
-        {
-            "type": "Microsoft.Compute/availabilitySets",
-            "apiVersion": "2016-04-30-preview",
-            "location": "[resourceGroup().location]",
-            "name": "[variables('linux-availabilitySet-name')]",
-            "properties": {
-                "platformFaultDomainCount": 2,
-                "platformUpdateDomainCount": 5,
-                "managed": true
-            },
-            "sku": {
-                "name": "Aligned"
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2017-09-01",
-            "location": "[resourceGroup().location]",
-            "name": "[concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-nic')]",
-            "copy": {
-                "name": "nicLoop",
-                "count": "[parameters('linux-virtualMachine-count')]"
-            },
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[variables('subnet-id')]"
-                            },
-                            "applicationSecurityGroups":[
-                                {
-                                    "id": "[variables('jb-asg-id')]"
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2017-03-30",
-            "location": "[resourceGroup().location]",
-            "name": "[concat(variables('linux-virtualMachine-name-prefix'), copyindex(1))]",
-            "copy": {
-                "name": "linuxVmLoop",
-                "count": "[parameters('linux-virtualMachine-count')]"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/availabilitySets', variables('linux-availabilitySet-name'))]",
-                "[concat('Microsoft.Network/networkInterfaces/', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-nic'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts',variables('diagnostic-storageAccount-name'))]"
-            ],
-            "properties": {
-                "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('linux-availabilitySet-name'))]"
-                },
-                "osProfile": {
-                    "computerName": "[concat(parameters('extension-name'), '-linux-vm',copyindex(1))]",
-                    "adminUsername": "[parameters('admin-username')]",
-                    "adminPassword": "[parameters('admin-password')]"
-                },
-                "hardwareProfile": {
-                    "vmSize": "[parameters('linux-virtualMachine-size')]"
-                },
-                "storageProfile": {
-                    "imageReference": {
-                        "publisher": "[parameters('linux-os-image').publisher]",
-                        "offer": "[parameters('linux-os-image').offer]",
-                        "sku": "[parameters('linux-os-image').sku]",
-                        "version": "latest"
-                    },
-                    "osDisk": {
-                        "name": "[replace(toLower(substring(concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-osdisk', '-', replace(concat(variables('uniqueString'), variables('uniqueString')), '-', '')), 0, 40)), '-', '')]",                        
-                        "osType": "[parameters('linux-os-type')]",
-                        "createOption": "FromImage"
-                    }
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-nic'))]",
-                            "properties":{
-                                "primary": true
-                            }
-                        }
-                    ]
-                },
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": true,
-                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('diagnostic-storageAccount-name')), '2016-12-01').primaryEndpoints.blob)]"
-                    }
-                }
-            },
-            "resources": [
-                {
-                    "type": "extensions",
-                    "name": "OMSExtension",
-                    "condition": "[bool('false')]",
-                    "apiVersion": "2015-06-15",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1)))]"
-                    ],
-                    "properties": {
-                      "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-                      "type": "MicrosoftMonitoringAgent",
-                      "typeHandlerVersion": "1.0",
-                      "autoUpgradeMinorVersion": true,
-                      "settings": {
-                        "workspaceId": "[parameters('oms-workspace-id')]"
-                      },
-                      "protectedSettings": {
-                        "workspaceKey": "[parameters('oms-primary-shared-key')]"
-                      }
-                    }
-                },
-                {
-                    "type": "Microsoft.Compute/virtualMachines/extensions",
-                    "name": "[concat(parameters('virtualMachineName'),'/', variables('diagnosticsExtensionName'))]",
-                    "apiVersion": "2017-12-01",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]",
-                        "[variables('diagnosticsMMAExtensionName')]"
+                        "[variables('antimalware-extension-name')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Diagnostics",
@@ -649,13 +379,13 @@
                         "typeHandlerVersion": "1.5",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "StorageAccount": "[parameters('diagnosticsStorageAccountName')]",
+                            "StorageAccount": "[parameters('storageAccount-name')]",
                             "StorageType": "TableAndBlob",
                             "WadCfg": {
                                 "DiagnosticMonitorConfiguration": {
                                     "overallQuotaInMB": 5120,
                                     "Metrics": {
-                                        "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/', 'Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]",
+                                        "resourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]",
                                         "MetricAggregation": [
                                             {
                                                 "scheduledTransferPeriod": "PT1H"
@@ -921,10 +651,323 @@
                             }
                         },
                         "protectedSettings": {
-                            "storageAccountName": "[parameters('diagnosticsStorageAccountName')]",
+                            "storageAccountName": "[parameters('storageAccount-name')]",
                             "storageAccountEndPoint": "https://core.windows.net/",
-                            "storageAccountSasToken": "sv=2015-04-05&ss=bt&srt=co&sp=acuw&se=2119-12-31T23:59:59.0000000Z&spr=https&sig=QmvJLdMVT84cP6XDPnikLhgGpFbDqofCge107c8z/d8="
+                            "storageAccountSasToken": "[parameters('storageAccount-sasToken')]"
                         }
+                    }
+                },
+                {
+                    "type": "extensions",
+                    "name": "[variables('networkWatcher-extension-name')]",
+                    "apiVersion": "2017-03-30",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": true
+                    }
+                },
+                {
+                    "type": "extensions",
+                    "name": "[variables('encryption-extension-name')]",
+                    "apiVersion": "2017-03-30",
+                    "location": "[resourceGroup().location]",
+                    "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('antimalware-extension-name'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('diagnostics-extension-name'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('networkWatcher-extension-name'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Security",
+                        "type": "AzureDiskEncryption",
+                        "typeHandlerVersion": "1.1",
+                        "autoUpgradeMinorVersion": true,
+                        "forceUpdateTag": "1.0",
+                        "settings": {
+                            "AADClientID": "[parameters('aad-principal-id')]",
+                            "AADClientCertThumbprint": "[parameters('aad-certificate-thumb')]",
+                            "KeyVaultURL": "[parameters('kv-uri')]",
+                            "KeyEncryptionKeyURL": "[parameters('jb-key')]",
+                            "KeyEncryptionAlgorithm": "[variables('key-encryptionAlgorithm')]",
+                            "VolumeType": "All",
+                            "EncryptionOperation": "[variables('encryption-operation')]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[concat('vm', copyindex(1), 'OSEncryptionNestedDeployment')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
+            "dependsOn": [
+                "windowsVmLoop"
+            ],
+            "copy": {
+                "name": "vmWindowsEncryptLoop",
+                "count": "[parameters('windows-virtualMachine-count')]"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "resources": [
+                        {
+                            "apiVersion": "2017-03-30",
+                            "type": "Microsoft.Compute/virtualMachines",
+                            "name": "[concat(variables('windows-virtualMachine-name-prefix'), copyindex(1))]",
+                            "location": "[resourceGroup().location]",
+                            "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
+                            "properties": {
+                                "storageProfile": {
+                                    "osDisk": {
+                                        "encryptionSettings": {
+                                            "enabled": true,
+                                            "diskEncryptionKey": {
+                                                "sourceVault": {
+                                                    "id": "[parameters('kv-id')]"
+                                                },
+                                                "secretUrl": "[if(equals(parameters('enable-encryption'), bool('false')), json('null'), reference(resourceId('Microsoft.Compute/virtualMachines/extensions',  concat(variables('windows-virtualMachine-name-prefix'), copyindex(1)), variables('encryption-extension-name'))).instanceView.statuses[0].message)]"
+                                            },
+                                            "keyEncryptionKey": {
+                                                "sourceVault": {
+                                                    "id": "[parameters('kv-id')]"
+                                                },
+                                                "keyUrl": "[parameters('jb-key')]"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "parameters": {}
+            }
+        },
+        {
+            "type": "Microsoft.Compute/availabilitySets",
+            "apiVersion": "2016-04-30-preview",
+            "location": "[resourceGroup().location]",
+            "name": "[variables('linux-availabilitySet-name')]",
+            "properties": {
+                "platformFaultDomainCount": 2,
+                "platformUpdateDomainCount": 5,
+                "managed": true
+            },
+            "sku": {
+                "name": "Aligned"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2017-09-01",
+            "location": "[resourceGroup().location]",
+            "name": "[concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-nic')]",
+            "copy": {
+                "name": "nicLoop",
+                "count": "[parameters('linux-virtualMachine-count')]"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnet-id')]"
+                            },
+                            "applicationSecurityGroups": [
+                                {
+                                    "id": "[variables('jb-asg-id')]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2017-03-30",
+            "location": "[resourceGroup().location]",
+            "name": "[concat(variables('linux-virtualMachine-name-prefix'), copyindex(1))]",
+            "copy": {
+                "name": "linuxVmLoop",
+                "count": "[parameters('linux-virtualMachine-count')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/availabilitySets', variables('linux-availabilitySet-name'))]",
+                "[concat('Microsoft.Network/networkInterfaces/', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-nic'))]"
+            ],
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('linux-availabilitySet-name'))]"
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('extension-name'), '-linux-vm',copyindex(1))]",
+                    "adminUsername": "[parameters('admin-username')]",
+                    "adminPassword": "[parameters('admin-password')]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('linux-virtualMachine-size')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('linux-os-image').publisher]",
+                        "offer": "[parameters('linux-os-image').offer]",
+                        "sku": "[parameters('linux-os-image').sku]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[replace(toLower(substring(concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-osdisk', '-', replace(concat(variables('uniqueString'), variables('uniqueString')), '-', '')), 0, 40)), '-', '')]",
+                        "osType": "[parameters('linux-os-type')]",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-nic'))]",
+                            "properties": {
+                                "primary": true
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat(reference(parameters('storageAccount-resourceId'), '2016-12-01').primaryEndpoints.blob)]"
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "name": "[variables('mma-extension-name')]",
+                    "apiVersion": "2018-06-01",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1)))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "OmsAgentForLinux",
+                        "typeHandlerVersion": "1.7",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "workspaceId": "[parameters('oms-workspace-id')]"
+                        },
+                        "protectedSettings": {
+                            "workspaceKey": "[parameters('oms-primary-shared-key')]"
+                        }
+                    }
+                },
+                {
+                    "type": "extensions",
+                    "name": "[variables('diagnostics-extension-name')]",
+                    "apiVersion": "2017-12-01",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('mma-extension-name')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Diagnostics",
+                        "type": "LinuxDiagnostic",
+                        "typeHandlerVersion": "3.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "StorageAccount": "[parameters('storageAccount-name')]",
+                            "StorageType": "TableAndBlob",
+                            "sampleRateInSeconds": 15,
+                            "ladCfg": {
+                                "diagnosticMonitorConfiguration": {
+                                    "performanceCounters": {
+                                        "sinks": "MyMetricEventHub,MyJsonMetricsBlob",
+                                        "performanceCounterConfiguration": [
+                                            {
+                                                "unit": "Percent",
+                                                "type": "builtin",
+                                                "counter": "PercentProcessorTime",
+                                                "counterSpecifier": "/builtin/Processor/PercentProcessorTime",
+                                                "annotation": [
+                                                    {
+                                                        "locale": "en-us",
+                                                        "displayName": "Aggregate CPU %utilization"
+                                                    }
+                                                ],
+                                                "condition": "IsAggregate=TRUE",
+                                                "class": "Processor"
+                                            },
+                                            {
+                                                "unit": "Bytes",
+                                                "type": "builtin",
+                                                "counter": "UsedSpace",
+                                                "counterSpecifier": "/builtin/FileSystem/UsedSpace",
+                                                "annotation": [
+                                                    {
+                                                        "locale": "en-us",
+                                                        "displayName": "Used disk space on /"
+                                                    }
+                                                ],
+                                                "condition": "Name=\"/\"",
+                                                "class": "Filesystem"
+                                            }
+                                        ]
+                                    },
+                                    "metrics": {
+                                        "metricAggregation": [
+                                            {
+                                                "scheduledTransferPeriod": "PT1H"
+                                            },
+                                            {
+                                                "scheduledTransferPeriod": "PT1M"
+                                            }
+                                        ],
+                                        "resourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1)))]"
+                                    },
+                                    "eventVolume": "Large",
+                                    "syslogEvents": {
+                                        "sinks": "SyslogJsonBlob,LoggingEventHub",
+                                        "syslogEventConfiguration": {
+                                            "LOG_USER": "LOG_INFO"
+                                        }
+                                    }
+                                }
+                            },
+                            "perfCfg": [
+                                {
+                                    "query": "SELECT PercentProcessorTime, PercentIdleTime FROM SCX_ProcessorStatisticalInformation WHERE Name='_TOTAL'",
+                                    "table": "LinuxCpu",
+                                    "frequency": 60,
+                                    "sinks": "LinuxCpuJsonBlob,LinuxCpuEventHub"
+                                }
+                            ],
+                            "fileLogs": [
+                                {
+                                    "file": "/var/log/myladtestlog",
+                                    "table": "MyLadTestLog",
+                                    "sinks": "FilelogJsonBlob,LoggingEventHub"
+                                }
+                            ]
+                        }
+                    },
+                    "protectedSettings": {
+                        "storageAccountName": "[parameters('storageAccount-name')]",
+                        "storageAccountEndPoint": "https://core.windows.net/",
+                        "storageAccountSasToken": "[parameters('storageAccount-sasToken')]"
                     }
                 },
                 {
@@ -946,7 +989,5 @@
             ]
         }
     ],
-    "outputs": {
-
-    }
+    "outputs": {}
 }

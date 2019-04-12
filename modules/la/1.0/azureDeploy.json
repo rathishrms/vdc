@@ -94,7 +94,7 @@
         {
             "apiVersion": "2017-03-15-preview",
             "type": "Microsoft.OperationalInsights/workspaces",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "name": "[variables('la-workspace-name')]",
             "properties": {
                 "features": {

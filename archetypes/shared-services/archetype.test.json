@@ -18,7 +18,7 @@
         "shared-services": {
             "deployment-name": "ssvcs",
             "subscription-id": "00000000-0000-0000-0000-000000000000",
-            "region": "Central US",
+            "region": "West US 2",
             "vm-configuration": {
                 "local-admin-user": "admin-user",
                 "enable-encryption": false,
@@ -44,6 +44,9 @@
                     }
                 ]
             },
+            "network": {
+                "network-resource-group-name": "${general.organization-name}-${general.shared-services.deployment-name}-net-rg"
+            },
             "log-analytics": {
                 "region": "West US 2"
             },
@@ -60,6 +63,7 @@
             "la",
             "nsg",
             "shared-services-net",
+            "diagnostic-storage-account-enable-service-endpoint",
             "vgw",
             "vgw-connection",
             "onprem-vgw-connection",
@@ -79,9 +83,9 @@
                     "module": "diagnostic-storage-account",
                     "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
                     "source": {
-                        "version": "storageV2-with-serviceEndpoint",
-                        "template-path": "file(modules/storage-account/storageV2-with-serviceEndpoint)",
-                        "parameters-path": "file(modules/storage-account/storageV2-with-serviceEndpoint)"
+                        "version": "storageV2",
+                        "template-path": "file(modules/storage-account/storageV2)",
+                        "parameters-path": "file(modules/storage-account/storageV2)"
                     },
                     "dependencies": []
                 },
@@ -100,7 +104,7 @@
                 },
                 {
                     "module": "nsg",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
+                    "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "latest"
                     },
@@ -111,7 +115,7 @@
                 },
                 {
                     "module": "shared-services-net",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
+                    "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "1.0"
                     },
@@ -120,8 +124,20 @@
                     ]
                 },
                 {
+                    "module": "diagnostic-storage-account-enable-service-endpoint",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "source": {
+                        "version": "enable-serviceEndpoint",
+                        "template-path": "file(modules/storage-account/enable-serviceEndpoint)",
+                        "parameters-path": "file(modules/storage-account/enable-serviceEndpoint)"
+                    },
+                    "dependencies": [
+                        "shared-services-net"
+                    ]
+                },
+                {
                     "module": "vgw",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
+                    "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "1.0"
                     },
@@ -131,7 +147,7 @@
                 },
                 {
                     "module": "vgw-connection",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
+                    "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "1.0"
                     },
@@ -142,7 +158,7 @@
                 },
                 {
                     "module": "onprem-vgw-connection",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
+                    "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "1.0"
                     },
@@ -152,7 +168,7 @@
                 },
                 {
                     "module": "azure-fw",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
+                    "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "1.0"
                     },
@@ -307,6 +323,24 @@
         },
         "paloalto-storage-resource-group-name": "${general.shared-services.paloalto-storage-resource-group-name}",
         "keyvault": "${general.shared-services.keyvault}",
+        "diagnostic-storage-account": {
+            "network-acls": {
+                "bypass": "AzureServices",
+                "defaultAction": "Deny",
+                "virtualNetworkRules": [
+                    {
+                        "subnet": "${shared-services.network.subnets[0].name}"
+                    },
+                    {
+                        "subnet": "${shared-services.network.subnets[1].name}"
+                    },
+                    {
+                        "subnet": "${shared-services.network.subnets[2].name}"
+                    }
+                ],
+                "ipRules": []
+            }
+        },
         "network": {
             "enable-ddos-protection": false,
             "address-prefix": "10.4.0.0/23",
@@ -831,21 +865,60 @@
                     "address-prefix": "10.4.0.32/27",
                     "network-security-group": "${shared-services.network.network-security-groups[0].name}",
                     "user-defined-route": "${shared-services.network.user-defined-routes[0].name}",
-                    "service-endpoints": []
+                    "service-endpoints": [
+                        {
+                            "service": "Microsoft.EventHub"
+                        },
+                        {
+                            "service": "Microsoft.Sql"
+                        },
+                        {
+                            "service": "Microsoft.KeyVault"
+                        },
+                        {
+                            "service": "Microsoft.Storage"
+                        }
+                    ]
                 },
                 {
                     "name": "trust",
                     "address-prefix": "10.4.0.96/28",
                     "network-security-group": "${shared-services.network.network-security-groups[1].name}",
                     "user-defined-route": "",
-                    "service-endpoints": []
+                    "service-endpoints": [
+                        {
+                            "service": "Microsoft.EventHub"
+                        },
+                        {
+                            "service": "Microsoft.Sql"
+                        },
+                        {
+                            "service": "Microsoft.KeyVault"
+                        },
+                        {
+                            "service": "Microsoft.Storage"
+                        }
+                    ]
                 },
                 {
                     "name": "dmz",
                     "address-prefix": "10.4.0.0/27",
                     "network-security-group": "${shared-services.network.network-security-groups[2].name}",
                     "user-defined-route": "",
-                    "service-endpoints": []
+                    "service-endpoints": [
+                        {
+                            "service": "Microsoft.EventHub"
+                        },
+                        {
+                            "service": "Microsoft.Sql"
+                        },
+                        {
+                            "service": "Microsoft.KeyVault"
+                        },
+                        {
+                            "service": "Microsoft.Storage"
+                        }
+                    ]
                 },
                 {
                     "name": "AppGateway",
