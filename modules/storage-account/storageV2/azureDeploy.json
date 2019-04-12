@@ -12,14 +12,6 @@
             "type": "bool",
             "defaultValue": true
         },
-        "virtualNetwork-rules": {
-            "type": "array",
-            "defaultValue": []
-        },
-        "ip-rules": {
-            "type": "array",
-            "defaultValue": []
-        },
         "utcYear": {
             "type": "string",
             "defaultValue": "[utcNow('yyyy')]"
@@ -63,13 +55,7 @@
                         }
                     }
                 },
-                "supportsHttpsTrafficOnly": true,
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "defaultAction": "Deny",
-                    "virtualNetworkRules": "[if(equals(length(parameters('virtualNetwork-rules')), 0), json('null'), parameters('virtualNetwork-rules'))]",
-                    "ipRules": "[if(equals(length(parameters('ip-rules')), 0), json('null'), parameters('ip-rules'))]"
-                }
+                "supportsHttpsTrafficOnly": true
             }
         },
         {

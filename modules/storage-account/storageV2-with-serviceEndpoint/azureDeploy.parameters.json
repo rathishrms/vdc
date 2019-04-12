@@ -1,0 +1,11 @@
+{
+    "deployment-prefix": {
+        "value": "${general.organization-name}-${ENV:ENVIRONMENT-TYPE.deployment-name}"
+    },
+    "virtualNetwork-rules": {
+        "value": "${ENV:ENVIRONMENT-TYPE.storage-account.virtualNetwork-rules}"
+    },
+    "ip-rules": {
+        "value": "${ENV:ENVIRONMENT-TYPE.storage-account.ip-rules}"
+    }
+}
