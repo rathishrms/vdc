@@ -85,15 +85,30 @@
                 "description": "all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in a secure object"
             }
         },
-        "networkAcls": {
-            "bypass": "[parameters('network-acls').bypass]",
-            "defaultAction": "[parameters('network-acls').defaultAction]",
-            "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), variables('empty-array'), variables('virtualNetwork-rules').virtualNetworkRules)]",
-            "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), variables('empty-array'), parameters('network-acls').ipRules)]"
+        "network-acls": {
+            "type": "object"
+        },
+        "vnet-id": {
+            "type": "string",
+            "metadata": {
+                "description": "Shared services Virtual Network resource identifier"
+            }
         }
     },
     "variables": {
-        "key-vault-name": "[concat(parameters('deployment-prefix'), '-kv')]"
+        "key-vault-name": "[concat(parameters('deployment-prefix'), '-kv')]",
+        "virtualNetwork-rules": {
+            "copy": [
+                {
+                    "name": "virtualNetworkRules",
+                    "count": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), 1, length(parameters('network-acls').virtualNetworkRules))]",
+                    "input": {
+                        "id": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), concat(parameters('vnet-id'), '/subnets/', parameters('network-acls').virtualNetworkRules[copyIndex('virtualNetworkRules')].subnet))]"
+                    }
+                }
+            ]
+        },
+        "empty-array": []
     },
     "resources": [
         {
@@ -115,18 +130,10 @@
                     "family": "A"
                 },
                 "networkAcls": {
-                    "defaultAction": "Allow",
-                    "bypass": "AzureServices",
-                    "ipRules": [
-                        {
-                            "value": "string"
-                        }
-                    ],
-                    "virtualNetworkRules": [
-                        {
-                            "id": "string"
-                        }
-                    ]
+                    "bypass": "[parameters('network-acls').bypass]",
+                    "defaultAction": "[parameters('network-acls').defaultAction]",
+                    "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), variables('empty-array'), variables('virtualNetwork-rules').virtualNetworkRules)]",
+                    "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), variables('empty-array'), parameters('network-acls').ipRules)]"
                 }
             },
             "resources": [

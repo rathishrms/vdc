@@ -135,7 +135,8 @@
                         "parameters-path": "file(modules/storage-account/enable-serviceEndpoint)"
                     },
                     "dependencies": [
-                        "shared-services-net"
+                        "shared-services-net",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {

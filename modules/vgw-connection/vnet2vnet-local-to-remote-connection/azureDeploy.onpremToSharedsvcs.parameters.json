@@ -8,6 +8,9 @@
     "local-gateway-name": {
         "value": "${on-premises.network.virtual-gateway.gateway-name}"
     },
+    "local-gateway-location": {
+        "value": "${on-premises.region}"
+    },
     "vpn-shared-key": {
         "value": "asodgfhjkaw4tu0w9vuijv0qu3409tu"
     },
@@ -22,9 +25,6 @@
     },
     "remote-connection-name":{
         "value": "${shared-services.deployment-name}"
-    },
-    "remote-gateway-location": {
-        "value": "${shared-services.region}"
     },
     "enable-bgp": {
         "value": false
