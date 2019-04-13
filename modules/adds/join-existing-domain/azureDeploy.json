@@ -245,6 +245,7 @@
         "diagnostics-extension-name": "IaaSDiagnostics",
         "networkWatcher-extension-name": "NetworkWatcher",
         "MMA-extension-name": "OMSExtension",
+        "custom-adds-extension-name": "DSCSetupADDS",
         "encryption-extension-name": "AzureDiskEncryption",
         "encryption-operation": "EnableEncryption",
         "key-encryptionAlgorithm": "RSA-OAEP",
@@ -390,12 +391,12 @@
                 },
                 {
                     "type": "extensions",
-                    "name": "DSCSetupADDS",
+                    "name": "[variables('custom-adds-extension-name')]",
                     "apiVersion": "2017-03-30",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
-                        "OMSExtension"
+                        "[variables('MMA-extension-name')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",
@@ -425,7 +426,7 @@
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), 'DSCSetupADDS')]"
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('custom-adds-extension-name'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Security",
@@ -451,7 +452,7 @@
                     "apiVersion": "2017-03-30",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), 'DSCSetupADDS')]"
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('custom-adds-extension-name'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Diagnostics",
@@ -744,7 +745,7 @@
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), 'DSCSetupADDS')]"
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('custom-adds-extension-name'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
@@ -761,7 +762,7 @@
                     "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), 'DSCSetupADDS')]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('custom-adds-extension-name'))]",
                         "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('antimalware-extension-name'))]",
                         "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('diagnostics-extension-name'))]",
                         "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('networkWatcher-extension-name'))]"
@@ -863,7 +864,7 @@
                             "resources": [
                                 {
                                     "type": "extensions",
-                                    "name": "DSCSetupADDS",
+                                    "name": "[variables('custom-adds-extension-name')]",
                                     "apiVersion": "2017-03-30",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
