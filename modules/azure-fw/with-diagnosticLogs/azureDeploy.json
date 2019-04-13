@@ -171,7 +171,11 @@
                                         "*.trafficmanager.net",
                                         "*.azureedge.net",
                                         "*.microsoft.com",
-                                        "*.core.windows.net"
+                                        "*.core.windows.net",
+                                        "*.windows.com",
+                                        "*.oms.opinsights.azure.com",
+                                        "*.visualstudio.com",
+                                        "*.bing.com"
                                     ]
                                 }
                             ]
@@ -201,6 +205,21 @@
                                     ],
                                     "protocols": [
                                         "Any"
+                                    ]
+                                },
+                                {
+                                    "name": "allow-windows-activation-server",
+                                    "sourceAddresses": [
+                                        "*"
+                                    ],
+                                    "destinationAddresses": [
+                                        "23.102.135.246"
+                                    ],
+                                    "destinationPorts": [
+                                        "1688"
+                                    ],
+                                    "protocols": [
+                                        "TCP"
                                     ]
                                 }
                             ]
