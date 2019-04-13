@@ -6,8 +6,8 @@
         "vdc-storage-account-name": "storage",
         "vdc-storage-account-rg": "vdc-storage-rg",
         "on-premises": {
-            "deployment-name": "onprem",
             "subscription-id": "00000000-0000-0000-0000-000000000000",
+            "deployment-name": "onprem",
             "region": "Central US",
             "active-directory": {
                 "AD-sitename": "Cloud-Site",
@@ -16,9 +16,9 @@
             }
         },
         "shared-services": {
-            "deployment-name": "ssvcs",
             "subscription-id": "00000000-0000-0000-0000-000000000000",
-            "region": "West US 2",
+            "deployment-name": "ssvcs",
+            "region": "Central US",
             "vm-configuration": {
                 "local-admin-user": "admin-user",
                 "enable-encryption": false,
@@ -154,7 +154,8 @@
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "vnet2vnet-local-to-remote-connection",
-                        "template-path": "file(modules/vnet2vnet-local-to-remote-connection/azureDeploy.sharedsvcsToOnprem.parameters.json)"
+                        "template-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection)",
+                        "parameters-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection/azureDeploy.sharedsvcsToOnprem.parameters.json)"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -166,7 +167,8 @@
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
                         "version": "vnet2vnet-local-to-remote-connection",
-                        "template-path": "file(modules/vnet2vnet-local-to-remote-connection/azureDeploy.onpremToSharedsvcs.parameters.json)"
+                        "template-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection)",
+                        "parameters-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection/azureDeploy.onpremToSharedsvcs.parameters.json)"
                     },
                     "dependencies": [
                         "shared-services-net"
@@ -180,7 +182,8 @@
                     },
                     "dependencies": [
                         "shared-services-net",
-                        "la"
+                        "la",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {
@@ -216,7 +219,8 @@
                     "dependencies": [
                         "kv",
                         "shared-services-net",
-                        "palo-alto-storage"
+                        "palo-alto-storage",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {
@@ -234,7 +238,8 @@
                     "dependencies": [
                         "kv",
                         "shared-services-net",
-                        "palo-alto-storage"
+                        "palo-alto-storage",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {
@@ -255,7 +260,9 @@
                         "version": "with-serviceEndpoint"
                     },
                     "dependencies": [
-                        "la"
+                        "shared-services-net",
+                        "la",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {
@@ -266,7 +273,8 @@
                     "dependencies": [
                         "kv",
                         "shared-services-net",
-                        "la"
+                        "la",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {
@@ -277,7 +285,8 @@
                     "dependencies": [
                         "kv",
                         "shared-services-net",
-                        "la"
+                        "la",
+                        "diagnostic-storage-account"
                     ]
                 },
                 {
@@ -287,7 +296,8 @@
                     },
                     "dependencies": [
                         "kv",
-                        "shared-services-net"
+                        "shared-services-net",
+                        "diagnostic-storage-account"
                     ]
                 }
             ]
@@ -369,7 +379,7 @@
             "enable-ddos-protection": false,
             "address-prefix": "10.4.0.0/23",
             "network-virtual-appliance": {
-                "egress-ip": "${shared-services.network.network-virtual-appliance.palo-alto.egress.ip}",
+                "egress-ip": "${shared-services.network.network-virtual-appliance.azure-firewall.egress.ip}",
                 "azure-firewall": {
                     "egress": {
                         "ip": "10.4.1.4"
