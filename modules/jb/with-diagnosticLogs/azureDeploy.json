@@ -8,13 +8,13 @@
                 "description": "Deployment prefix. E.g. Organization-DeploymentType"
             }
         },
-        "oms-workspace-id": {
+        "la-workspace-id": {
             "type": "securestring",
             "metadata": {
                 "description": "WorkspaceId or CustomerId value of OMS. This value is referenced in OMS VM Extension"
             }
         },
-        "oms-primary-shared-key": {
+        "la-primary-shared-key": {
             "type": "securestring",
             "metadata": {
                 "description": "WorkspaceKey value of OMS. This value is referenced in OMS VM Extension"
@@ -331,10 +331,10 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "workspaceId": "[parameters('oms-workspace-id')]"
+                            "workspaceId": "[parameters('la-workspace-id')]"
                         },
                         "protectedSettings": {
-                            "workspaceKey": "[parameters('oms-primary-shared-key')]"
+                            "workspaceKey": "[parameters('la-primary-shared-key')]"
                         }
                     }
                 },
@@ -867,10 +867,10 @@
                         "typeHandlerVersion": "1.7",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "workspaceId": "[parameters('oms-workspace-id')]"
+                            "workspaceId": "[parameters('la-workspace-id')]"
                         },
                         "protectedSettings": {
-                            "workspaceKey": "[parameters('oms-primary-shared-key')]"
+                            "workspaceKey": "[parameters('la-primary-shared-key')]"
                         }
                     }
                 },

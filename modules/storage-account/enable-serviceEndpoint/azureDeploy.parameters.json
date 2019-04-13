@@ -1,5 +1,5 @@
 {
     "network-acls": {
-        "value": "${ENV:ENVIRONMENT-TYPE.diagnostic-storage-account.network-acls}"
+        "value": "${ENV:ENVIRONMENT-TYPE.storage-account.network-acls}"
     }
 }

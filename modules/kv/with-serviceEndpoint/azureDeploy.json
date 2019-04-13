@@ -16,7 +16,7 @@
         },
         "logs-retention-in-days": {
             "type": "int",
-            "defaultValue": 0,
+            "defaultValue": 365,
             "minValue": 0,
             "maxValue": 365,
             "metadata": {
@@ -84,19 +84,22 @@
             "metadata": {
                 "description": "all secrets {\"secretName\":\"\",\"secretValue\":\"\"} wrapped in a secure object"
             }
+        },
+        "networkAcls": {
+            "bypass": "[parameters('network-acls').bypass]",
+            "defaultAction": "[parameters('network-acls').defaultAction]",
+            "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), variables('empty-array'), variables('virtualNetwork-rules').virtualNetworkRules)]",
+            "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), variables('empty-array'), parameters('network-acls').ipRules)]"
         }
     },
     "variables": {
-        "key-vault-name": "[concat(parameters('deployment-prefix'), '-kv')]",
-        "uniqueString": "[uniqueString(subscription().id, resourceGroup().id)]",
-        "diagnostic-storageAccount-prefix": "[concat(replace(parameters('deployment-prefix'), '-', ''), 'kvdiag')]",
-        "diagnostic-storageAccount-name": "[toLower(substring(replace(concat(variables('diagnostic-storageAccount-prefix'), variables('uniqueString'), variables('uniqueString')), '-', ''), 0, 23) )]"
+        "key-vault-name": "[concat(parameters('deployment-prefix'), '-kv')]"
     },
     "resources": [
         {
             "type": "Microsoft.KeyVault/vaults",
             "name": "[variables('key-vault-name')]",
-            "apiVersion": "2016-10-01",
+            "apiVersion": "2018-02-14",
             "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "[variables('key-vault-name')]"
@@ -112,10 +115,18 @@
                     "family": "A"
                 },
                 "networkAcls": {
-                    "value": {
-                        "defaultAction": "Allow",
-                        "bypass": "AzureServices"
-                    }
+                    "defaultAction": "Allow",
+                    "bypass": "AzureServices",
+                    "ipRules": [
+                        {
+                            "value": "string"
+                        }
+                    ],
+                    "virtualNetworkRules": [
+                        {
+                            "id": "string"
+                        }
+                    ]
                 }
             },
             "resources": [
@@ -137,6 +148,16 @@
                                 "retentionPolicy": {
                                     "enabled": true,
                                     "days": "[parameters('logs-retention-in-days')]"
+                                }
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": "[parameters('logs-retention-in-days')]",
+                                    "enabled": true
                                 }
                             }
                         ]

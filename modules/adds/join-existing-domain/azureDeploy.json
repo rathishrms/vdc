@@ -32,10 +32,16 @@
                 "description": "WorkspaceKey value of OMS. This value is referenced in OMS VM Extension"
             }
         },
-        "diagnostic-storageAccount-name": {
+        "storageAccount-name": {
             "type": "string",
             "metadata": {
                 "description": "Storage account used to store diagnostic information"
+            }
+        },
+        "storageAccount-sasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Diagnostic Storage Account SAS token"
             }
         },
         "adds-address-start": {
@@ -356,7 +362,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('diagnostic-storageAccount-name')), '2016-12-01').primaryEndpoints.blob)]"
+                        "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccount-name')), '2016-12-01').primaryEndpoints.blob)]"
                     }
                 }
             },
@@ -453,7 +459,7 @@
                         "typeHandlerVersion": "1.5",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "StorageAccount": "[parameters('diagnostic-storageAccount-name')]",
+                            "StorageAccount": "[parameters('storageAccount-name')]",
                             "StorageType": "Blob",
                             "WadCfg": {
                                 "DiagnosticMonitorConfiguration": {
@@ -725,8 +731,8 @@
                             }
                         },
                         "protectedSettings": {
-                            "storageAccountName": "[variables('diagnostic-storageAccount-name')]",
-                            "storageAccountSasToken": "[listkeys(variables('diagnostic-storageAccount-id'), '2016-12-01').keys[0])",
+                            "storageAccountName": "[parameters('storageAccount-name')]",
+                            "storageAccountSasToken": "[parameters('storageAccount-sasToken')]",
                             "storageAccountEndPoint": "https://core.windows.net"
                         }
                     }

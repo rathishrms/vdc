@@ -45,7 +45,10 @@
                 ]
             },
             "network": {
-                "network-resource-group-name": "${general.organization-name}-${general.shared-services.deployment-name}-net-rg"
+                "network-resource-group-name": "${general.organization-name}-${general.shared-services.deployment-name}-net-rg",
+                "virtual-gateway": {
+                    "gateway-name": "${general.organization-name}-${shared-services.deployment-name}-gw"
+                }
             },
             "log-analytics": {
                 "region": "West US 2"
@@ -322,8 +325,26 @@
             "region": "${general.shared-services.log-analytics.region}"
         },
         "paloalto-storage-resource-group-name": "${general.shared-services.paloalto-storage-resource-group-name}",
-        "keyvault": "${general.shared-services.keyvault}",
-        "diagnostic-storage-account": {
+        "keyvault": {
+            "secrets": "${general.shared-services.keyvault.secrets}",
+            "network-acls": {
+                "bypass": "AzureServices",
+                "defaultAction": "Deny",
+                "virtualNetworkRules": [
+                    {
+                        "subnet": "${shared-services.network.subnets[0].name}"
+                    },
+                    {
+                        "subnet": "${shared-services.network.subnets[1].name}"
+                    },
+                    {
+                        "subnet": "${shared-services.network.subnets[2].name}"
+                    }
+                ],
+                "ipRules": []
+            }
+        },
+        "storage-account": {
             "network-acls": {
                 "bypass": "AzureServices",
                 "defaultAction": "Deny",
