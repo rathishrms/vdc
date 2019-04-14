@@ -848,7 +848,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[concat(reference(parameters('storageAccount-resourceId'), '2016-12-01').primaryEndpoints.blob)]"
+                        "storageUri": "[concat('https://', parameters('storageAccount-name'), '.blob.core.windows.net/')]"
                     }
                 }
             },

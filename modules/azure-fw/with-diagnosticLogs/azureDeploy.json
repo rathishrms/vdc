@@ -173,9 +173,10 @@
                                         "*.microsoft.com",
                                         "*.core.windows.net",
                                         "*.windows.com",
-                                        "*.oms.opinsights.azure.com",
+                                        "*.opinsights.azure.com",
                                         "*.visualstudio.com",
-                                        "*.bing.com"
+                                        "*.bing.com",
+                                        "*.ubuntu.com"
                                     ]
                                 }
                             ]
