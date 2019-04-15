@@ -88,6 +88,10 @@
             "Name": "[concat('Security', '(', variables('la-workspace-name'), ')')]",
             "GalleryName": "Security"
         },
+        "SecurityCenterFree": {
+            "Name": "[concat('SecurityCenterFree', '(', variables('la-workspace-name'), ')')]",
+            "GalleryName": "SecurityCenterFree"
+        },
         "log-analytics-search-version": 1
     },
     "resources": [
@@ -1072,6 +1076,26 @@
                     "plan": {
                         "name": "[variables('Security').Name]",
                         "product": "[Concat('OMSGallery/', variables('Security').GalleryName)]",
+                        "publisher": "Microsoft",
+                        "promotionCode": ""
+                    }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "location": "[parameters('location')]",
+                    "name": "[variables('SecurityCenterFree').Name]",
+                    "type": "Microsoft.OperationsManagement/solutions",
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('SecurityCenterFree').Name)]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]",
+                        "[variables('Security').Name]"
+                    ],
+                    "properties": {
+                        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]"
+                    },
+                    "plan": {
+                        "name": "[variables('SecurityCenterFree').Name]",
+                        "product": "[Concat('OMSGallery/', variables('SecurityCenterFree').GalleryName)]",
                         "publisher": "Microsoft",
                         "promotionCode": ""
                     }

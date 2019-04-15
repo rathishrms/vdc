@@ -1,11 +1,22 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "la-resourceId": {
-           "type": "string",
-           "metadata": {
+            "type": "string",
+            "metadata": {
                 "description": "Log Analytics workspace resource identifier"
+            }
+        },
+        "auto-provisioning": {
+            "type": "string",
+            "allowedValues": [
+                "On",
+                "Off"
+            ],
+            "defaultValue": "On",
+            "metadata": {
+                "description": "Turn automatic deployment by ASC of the MMA (OMS VM extension) on or off"
             }
         }
     },
@@ -72,6 +83,14 @@
             "properties": {
                 "workspaceId": "[parameters('la-resourceId')]",
                 "scope": "[subscription().id]"
+            }
+        },
+        {
+            "type": "Microsoft.Security/autoProvisioningSettings",
+            "name": "default",
+            "apiVersion": "2017-08-01-preview",
+            "properties": {
+                "autoProvision": "[parameters('auto-provisioning')]"
             }
         }
     ],
