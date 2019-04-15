@@ -279,12 +279,12 @@
             ]
         },
         {
-            "name": "[concat('nestedDeploymentUM-',variables('tag-patching')[copyindex()].name)]",
+            "name": "[concat('nestedDeploymentUM-Win',variables('tag-patching')[copyindex()].name)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "copy": {
                 "count": "[length(variables('tag-patching'))]",
-                "name": "patchingTagLoop"
+                "name": "patchingWinTagLoop"
             },
             "dependsOn": [
                 "[variables('azure-automation-account-name')]"
@@ -298,7 +298,7 @@
                     "variables": {},
                     "resources": [
                         {
-                            "name": "[concat(variables('azure-automation-account-name'), '/um-',subscription().displayName,'-',variables('tag-patching')[copyindex()].name)]",
+                            "name": "[concat(variables('azure-automation-account-name'), '/windows-um-',subscription().displayName,'-',variables('tag-patching')[copyindex()].name)]",
                             "type": "Microsoft.Automation/automationAccounts/softwareUpdateConfigurations",
                             "apiVersion": "2017-05-15-preview",
                             "properties": {
@@ -322,7 +322,65 @@
                                                             "[variables('tag-patching')[copyindex()].name]"
                                                         ]
                                                     },
-                                                    "filterOperator": "All"
+                                                    "filterOperator": "Any"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                "scheduleInfo": "[variables('tag-patching')[copyindex()].schedule]"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "[concat('nestedDeploymentUM-Linux',variables('tag-patching')[copyindex()].name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "copy": {
+                "count": "[length(variables('tag-patching'))]",
+                "name": "patchingLinuxTagLoop"
+            },
+            "dependsOn": [
+                "[variables('azure-automation-account-name')]",
+                "patchingWinTagLoop"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "name": "[concat(variables('azure-automation-account-name'), '/linux-um-',subscription().displayName,'-',variables('tag-patching')[copyindex()].name)]",
+                            "type": "Microsoft.Automation/automationAccounts/softwareUpdateConfigurations",
+                            "apiVersion": "2017-05-15-preview",
+                            "properties": {
+                                "updateConfiguration": {
+                                    "operatingSystem": "Linux",
+                                    "linux": {
+                                        "includedPackageClassifications": "Unclassified, Critical, Security, Other",
+                                        "rebootSetting": "Always"
+                                    },
+                                    "duration": "PT3H",
+                                    "targets": {
+                                        "azureQueries": [
+                                            {
+                                                "scope": [
+                                                    "[subscription().id]"
+                                                ],
+                                                "locations": [],
+                                                "tagSettings": {
+                                                    "tags": {
+                                                        "UpdateManagement": [
+                                                            "[variables('tag-patching')[copyindex()].name]"
+                                                        ]
+                                                    },
+                                                    "filterOperator": "Any"
                                                 }
                                             }
                                         ]
@@ -341,7 +399,8 @@
             "resourceGroup": "[parameters('la-workspace-resourceGroup')]",
             "apiVersion": "2017-05-10",
             "dependsOn": [
-                "[variables('azure-automation-account-name')]"
+                "[variables('azure-automation-account-name')]",
+                "patchingLinuxTagLoop"
             ],
             "properties": {
                 "mode": "Incremental",
