@@ -63,6 +63,39 @@
                 "Asia/Bangkok",
                 "Asia/Singapore"
             ]
+        },
+        "la-workspace-resourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Log Analytics resource group name"
+            }
+        },
+        "la-workspace-name": {
+            "type": "string",
+            "metadata": {
+                "description": "Log Analytics workspace name"
+            }
+        },
+        "storageAccount-resourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Diagnostic Storage Account resource identifier"
+            }
+        },
+        "la-resourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "OMS workspace resource identifier"
+            }
+        },
+        "logs-retention-in-days": {
+            "type": "int",
+            "defaultValue": 365,
+            "minValue": 0,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Specifies the number of days that logs will be kept for; a value of 0 will retain data indefinitely."
+            }
         }
     },
     "variables": {
@@ -193,7 +226,57 @@
                     "name": "Basic"
                 }
             },
-            "resources": []
+            "resources": [
+                {
+                    "type": "Microsoft.Automation/automationAccounts/providers/diagnosticsettings",
+                    "name": "[concat(variables('azure-automation-account-name'), '/Microsoft.Insights/service')]",
+                    "apiVersion": "2016-09-01",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[variables('azure-automation-account-name')]"
+                    ],
+                    "properties": {
+                        "storageAccountId": "[parameters('storageAccount-resourceId')]",
+                        "workspaceId": "[parameters('la-resourceId')]",
+                        "logs": [
+                            {
+                                "category": "JobLogs",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "enabled": true,
+                                    "days": "[parameters('logs-retention-in-days')]"
+                                }
+                            },
+                            {
+                                "category": "JobStreams",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "enabled": true,
+                                    "days": "[parameters('logs-retention-in-days')]"
+                                }
+                            },
+                            {
+                                "category": "DscNodeStatus",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "enabled": true,
+                                    "days": "[parameters('logs-retention-in-days')]"
+                                }
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": "[parameters('logs-retention-in-days')]",
+                                    "enabled": true
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "name": "[concat('nestedDeploymentUM-',variables('tag-patching')[copyindex()].name)]",
@@ -246,6 +329,35 @@
                                     }
                                 },
                                 "scheduleInfo": "[variables('tag-patching')[copyindex()].schedule]"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "nestedDeploymentLinkService",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('la-workspace-resourceGroup')]",
+            "apiVersion": "2017-05-10",
+            "dependsOn": [
+                "[variables('azure-automation-account-name')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.OperationalInsights/workspaces/linkedServices",
+                            "name": "[concat(parameters('la-workspace-name'), '/' , 'Automation')]",
+                            "apiVersion": "2015-11-01-preview",
+                            "location": "[parameters('location')]",
+                            "properties": {
+                                "resourceId": "[resourceId('Microsoft.Automation/automationAccounts', variables('azure-automation-account-name'))]"
                             }
                         }
                     ]

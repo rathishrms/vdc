@@ -100,12 +100,6 @@
             "metadata": {
                 "description": "Diagnostic Storage Account key"
             }
-        },
-        "automation-account-resourceId": {
-            "type": "string",
-            "metadata": {
-                "description": "Azure Automation account resource identifier"
-            }
         }
     },
     "variables": {
@@ -1167,18 +1161,6 @@
                     }
                 }
             ]
-        },
-        {
-            "type": "Microsoft.OperationalInsights/workspaces/linkedServices",
-            "name": "[concat(variables('la-workspace-name'), '/' , 'Automation')]",
-            "apiVersion": "2015-11-01-preview",
-            "location": "[parameters('automation-account-location')]",
-            "dependsOn": [
-                "[variables('la-workspace-name')]"
-            ],
-            "properties": {
-                "resourceId": "[parameters('automation-account-resourceId')]"
-            }
         },
         {
             "type": "Microsoft.OperationalInsights/workspaces/providers/locks",
