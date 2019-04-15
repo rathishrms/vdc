@@ -33,18 +33,54 @@
         "location": {
             "type": "string",
             "allowedValues": [
+                "Australia Central",
+                "Australia East",
                 "Australia Southeast",
                 "Canada Central",
                 "Central India",
+                "Central US",
+                "East Asia",
                 "East US",
+                "East US 2",
+                "France Central",
                 "Japan East",
+                "Korea Central",
+                "North Europe",
+                "South Central US",
                 "Southeast Asia",
                 "UK South",
                 "West Europe",
+                "West US",
                 "West US 2"
             ],
             "metadata": {
                 "description": "Region used when establishing the workspace"
+            }
+        },
+        "automation-account-location": {
+            "type": "string",
+            "allowedValues": [
+                "Australia Central",
+                "Australia East",
+                "Australia Southeast",
+                "Brazil South",
+                "Canada Central",
+                "Central India",
+                "East US",
+                "East US 2",
+                "France Central",
+                "Japan East",
+                "Korea Central",
+                "North Europe",
+                "South Central US",
+                "Southeast Asia",
+                "UK South",
+                "West Central US",
+                "West Europe",
+                "West US 2"
+            ],
+            "metadata": {
+                "description": "Specify the region for your automation account"
             }
         },
         "storageAccount-name": {
@@ -63,6 +99,12 @@
             "type": "string",
             "metadata": {
                 "description": "Diagnostic Storage Account key"
+            }
+        },
+        "automation-account-resourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure Automation account resource identifier"
             }
         }
     },
@@ -91,6 +133,10 @@
         "SecurityCenterFree": {
             "Name": "[concat('SecurityCenterFree', '(', variables('la-workspace-name'), ')')]",
             "GalleryName": "SecurityCenterFree"
+        },
+        "ChangeTracking": {
+            "Name": "[concat('ChangeTracking', '(', variables('la-workspace-name'), ')')]",
+            "GalleryName": "ChangeTracking"
         },
         "log-analytics-search-version": 1
     },
@@ -1099,8 +1145,40 @@
                         "publisher": "Microsoft",
                         "promotionCode": ""
                     }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "location": "[parameters('location')]",
+                    "name": "[variables('ChangeTracking').Name]",
+                    "type": "Microsoft.OperationsManagement/solutions",
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('ChangeTracking').Name)]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]",
+                        "[variables('SecurityCenterFree').Name]"
+                    ],
+                    "properties": {
+                        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]"
+                    },
+                    "plan": {
+                        "name": "[variables('ChangeTracking').Name]",
+                        "product": "[Concat('OMSGallery/', variables('ChangeTracking').GalleryName)]",
+                        "publisher": "Microsoft",
+                        "promotionCode": ""
+                    }
                 }
             ]
+        },
+        {
+            "type": "Microsoft.OperationalInsights/workspaces/linkedServices",
+            "name": "[concat(variables('la-workspace-name'), '/' , 'Automation')]",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[parameters('automation-account-location')]",
+            "dependsOn": [
+                "[variables('la-workspace-name')]"
+            ],
+            "properties": {
+                "resourceId": "[parameters('automation-account-resourceId')]"
+            }
         },
         {
             "type": "Microsoft.OperationalInsights/workspaces/providers/locks",

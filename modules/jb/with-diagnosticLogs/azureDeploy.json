@@ -218,7 +218,8 @@
         "mma-extension-name": "OMSExtension",
         "key-encryptionAlgorithm": "RSA-OAEP",
         "empty-array": [],
-        "jb-asg-id": "[resourceId(parameters('vnet-resourceGroup'),'Microsoft.Network/applicationSecurityGroups', concat(parameters('deployment-prefix'), '-', parameters('jb-asg-name'), '-asg'))]"
+        "jb-asg-id": "[resourceId(parameters('vnet-resourceGroup'),'Microsoft.Network/applicationSecurityGroups', concat(parameters('deployment-prefix'), '-', parameters('jb-asg-name'), '-asg'))]",
+        "tag-patching": "3rdSat7pm"
     },
     "resources": [
         {
@@ -271,6 +272,9 @@
             "copy": {
                 "name": "windowsVmLoop",
                 "count": "[parameters('windows-virtualMachine-count')]"
+            },
+            "tags": {
+                "UpdateManagement": "[variables('tag-patching')]"
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/availabilitySets', variables('windows-availabilitySet-name'))]",

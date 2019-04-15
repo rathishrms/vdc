@@ -250,7 +250,8 @@
         "encryption-operation": "EnableEncryption",
         "key-encryptionAlgorithm": "RSA-OAEP",
         "dc-asg-id": "[resourceId(parameters('vnet-resourceGroup'),'Microsoft.Network/applicationSecurityGroups', concat(parameters('deployment-prefix'), '-', parameters('dc-asg-name'), '-asg'))]",
-        "empty-array": []
+        "empty-array": [],
+        "tag-patching": "3rdSat7pm"
     },
     "resources": [
         {
@@ -308,7 +309,8 @@
             "location": "[resourceGroup().location]",
             "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1))]",
             "tags": {
-                "displayName": "[concat(variables('virtualMachine-name-prefix'), copyindex(1))]"
+                "displayName": "[concat(variables('virtualMachine-name-prefix'), copyindex(1))]",
+                "UpdateManagement": "[variables('tag-patching')]"
             },
             "copy": {
                 "name": "vmLoop",
