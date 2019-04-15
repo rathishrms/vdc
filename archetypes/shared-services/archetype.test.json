@@ -18,7 +18,7 @@
         "shared-services": {
             "subscription-id": "00000000-0000-0000-0000-000000000000",
             "deployment-name": "ssvcs",
-            "region": "Central US",
+            "region": "West US 2",
             "vm-configuration": {
                 "local-admin-user": "admin-user",
                 "enable-encryption": false,
@@ -53,6 +53,9 @@
             "log-analytics": {
                 "region": "West US 2"
             },
+            "automation-account": {
+                "region": "West US 2"
+            },
             "paloalto-storage-resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-paloalto-storage-rg"
         },
         "custom-script": {
@@ -63,7 +66,9 @@
     "orchestration": {
         "modules-to-deploy": [
             "diagnostic-storage-account",
+            "automation-account",
             "la",
+            "security-center",
             "nsg",
             "shared-services-net",
             "diagnostic-storage-account-enable-service-endpoint",
@@ -103,6 +108,27 @@
                     },
                     "dependencies": [
                         "diagnostic-storage-account"
+                    ]
+                },
+                {
+                    "module": "automation-account",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "source": {
+                        "version": "basic"
+                    },
+                    "dependencies": [
+                        "la",
+                        "diagnostic-storage-account"
+                    ]
+                },
+                {
+                    "module": "security-center",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "source": {
+                        "version": "standard"
+                    },
+                    "dependencies": [
+                        "la"
                     ]
                 },
                 {
@@ -336,6 +362,9 @@
         },
         "log-analytics": {
             "region": "${general.shared-services.log-analytics.region}"
+        },
+        "automation-account": {
+            "region": "${general.shared-services.automation-account.region}"
         },
         "paloalto-storage-resource-group-name": "${general.shared-services.paloalto-storage-resource-group-name}",
         "keyvault": {

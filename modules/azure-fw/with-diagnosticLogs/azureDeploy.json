@@ -174,7 +174,7 @@
                                         "*.core.windows.net",
                                         "*.windows.com",
                                         "*.opinsights.azure.com",
-                                        "*.azure-automation",
+                                        "*.azure-automation.net",
                                         "*.visualstudio.com",
                                         "*.bing.com",
                                         "*.ubuntu.com"
