@@ -177,7 +177,9 @@
                                         "*.azure-automation.net",
                                         "*.visualstudio.com",
                                         "*.bing.com",
-                                        "*.ubuntu.com"
+                                        "*.ubuntu.com",
+                                        "api.snapcraft.io",
+                                        "api.rubygems.org"
                                     ]
                                 }
                             ]
