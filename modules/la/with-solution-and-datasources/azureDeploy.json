@@ -57,32 +57,6 @@
                 "description": "Region used when establishing the workspace"
             }
         },
-        "automation-account-location": {
-            "type": "string",
-            "allowedValues": [
-                "Australia Central",
-                "Australia East",
-                "Australia Southeast",
-                "Brazil South",
-                "Canada Central",
-                "Central India",
-                "East US",
-                "East US 2",
-                "France Central",
-                "Japan East",
-                "Korea Central",
-                "North Europe",
-                "South Central US",
-                "Southeast Asia",
-                "UK South",
-                "West Central US",
-                "West Europe",
-                "West US 2"
-            ],
-            "metadata": {
-                "description": "Specify the region for your automation account"
-            }
-        },
         "storageAccount-name": {
             "type": "string",
             "metadata": {
