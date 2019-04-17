@@ -12,9 +12,35 @@
             "type": "bool",
             "defaultValue": true
         },
+        "vnet-id": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Shared services Virtual Network resource identifier"
+            }
+        },
+        "enable-network-acls": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Flag to enable network acls to whitelist IPs and subnets"
+            }
+        },
+        "network-acls": {
+            "type": "object",
+            "defaultValue": {}
+        },
         "utcYear": {
             "type": "string",
             "defaultValue": "[utcNow('yyyy')]"
+        },
+        "storage-account-kind": {
+            "type": "string",
+            "defaultValue": "StorageV2"
+        },
+        "storage-account-sku": {
+            "type": "string",
+            "defaultValue": "Standard_LRS"
         }
     },
     "variables": {
@@ -27,6 +53,23 @@
             "signedExpiry": "[concat(string(add(int(parameters('utcYear')), 100)), '-12-31T23:59:59Z')]",
             "signedResourceTypes": "co",
             "signedProtocol": "https"
+        },
+        "virtualNetwork-rules": {
+            "copy": [
+                {
+                    "name": "virtualNetworkRules",
+                    "count": "[if(not(parameters('enable-network-acls')), 1, if(equals(length(parameters('network-acls').virtualNetworkRules), 0), 1, length(parameters('network-acls').virtualNetworkRules)))]",
+                    "input": {
+                        "id": "[if(parameters('enable-network-acls'), json('null'), if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), concat(parameters('vnet-id'), '/subnets/', parameters('network-acls').virtualNetworkRules[copyIndex('virtualNetworkRules')].subnet)))]"
+                    }
+                }
+            ]
+        },
+        "networkAcls": {
+            "bypass": "[if(not(parameters('enable-network-acls')), 'AzureServices', parameters('network-acls').bypass)]",
+            "defaultAction": "[if(not(parameters('enable-network-acls')), 'Deny', parameters('network-acls').defaultAction)]",
+            "virtualNetworkRules": "[if(not(parameters('enable-network-acls')), json('null'), variables('virtualNetwork-rules').virtualNetworkRules)]",
+            "ipRules": "[if(not(parameters('enable-network-acls')), json('null'), if(equals(length(parameters('network-acls').ipRules), 0), json('null'), parameters('network-acls').ipRules))]"
         }
     },
     "resources": [
@@ -36,9 +79,9 @@
             "name": "[variables('diagnostic-storageAccount-name')]",
             "apiVersion": "2018-11-01",
             "location": "[resourceGroup().location]",
-            "kind": "StorageV2",
+            "kind": "[parameters('storage-account-kind')]",
             "sku": {
-                "name": "Standard_LRS"
+                "name": "[parameters('storage-account-sku')]"
             },
             "tags": {
                 "layer": "management"
@@ -50,12 +93,11 @@
                         "blob": {
                             "enabled": true
                         },
-                        "file": {
-                            "enabled": true
-                        }
+                        "file": "[if(or(equals(parameters('storage-account-kind'), 'StorageV2'), equals(parameters('storage-account-kind'), 'Storage')), json('{\"enabled\": true}'), json('null'))]"
                     }
                 },
-                "supportsHttpsTrafficOnly": true
+                "supportsHttpsTrafficOnly": true,
+                "networkAcls": "[if(empty(parameters('network-acls')), json('null'), variables('networkAcls'))]"
             }
         },
         {

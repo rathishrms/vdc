@@ -66,17 +66,16 @@
     "orchestration": {
         "modules-to-deploy": [
             "diagnostic-storage-account",
-            "automation-account",
             "la",
             "security-center",
             "nsg",
             "shared-services-net",
-            "diagnostic-storage-account-enable-service-endpoint",
+            "enable-service-endpoint-on-diagnostic-storage-account",
             "vgw",
             "vgw-connection",
             "onprem-vgw-connection",
-            "azure-fw",
             "kv",
+            "azure-fw",
             "jb",
             "adds"
         ],
@@ -89,22 +88,19 @@
             "modules": [
                 {
                     "module": "diagnostic-storage-account",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "storageV2",
-                        "template-path": "file(modules/storage-account/storageV2)",
-                        "parameters-path": "file(modules/storage-account/storageV2)"
+                        "version": "1.0",
+                        "template-path": "file(modules/storage-account/1.0)",
+                       "parameters-path": "file(modules/storage-account/1.0)"
                     },
                     "dependencies": []
                 },
                 {
                     "module": "la",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "with-solution-and-datasources",
-                        "template-path": "file(modules/la/with-solution-and-datasources)",
-                        "parameters-path": "file(modules/la/with-solution-and-datasources)",
-                        "policy-path": "file(modules/la/with-solution-and-datasources)"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "diagnostic-storage-account"
@@ -112,9 +108,9 @@
                 },
                 {
                     "module": "automation-account",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "basic"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "la",
@@ -123,9 +119,9 @@
                 },
                 {
                     "module": "security-center",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "create-resource-group": false,
                     "source": {
-                        "version": "standard"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "la"
@@ -135,7 +131,7 @@
                     "module": "nsg",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "with-diagnosticLogs"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "la",
@@ -146,19 +142,19 @@
                     "module": "shared-services-net",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "with-serviceEndpoint"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "nsg"
                     ]
                 },
                 {
-                    "module": "diagnostic-storage-account-enable-service-endpoint",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "module": "enable-service-endpoint-on-diagnostic-storage-account",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "enable-serviceEndpoint",
-                        "template-path": "file(modules/storage-account/enable-serviceEndpoint)",
-                        "parameters-path": "file(modules/storage-account/enable-serviceEndpoint)"
+                        "version": "1.0",
+                        "template-path": "file(modules/storage-account-with-serviceEndpoint/1.0)",
+                        "parameters-path": "file(modules/storage-account-with-serviceEndpoint/1.0)"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -169,7 +165,7 @@
                     "module": "vgw",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "gateway-and-publicIp"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "shared-services-net"
@@ -179,9 +175,9 @@
                     "module": "vgw-connection",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "vnet2vnet-local-to-remote-connection",
-                        "template-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection)",
-                        "parameters-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection/azureDeploy.sharedsvcsToOnprem.parameters.json)"
+                        "version": "1.0",
+                        "template-path": "file(modules/vgw-connection/1.0/azureDeploy.json)",
+                        "parameters-path": "file(modules/vgw-connection/1.0/azureDeploy.sharedsvcsToOnprem.parameters.json)"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -192,9 +188,9 @@
                     "module": "onprem-vgw-connection",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "vnet2vnet-local-to-remote-connection",
-                        "template-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection)",
-                        "parameters-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection/azureDeploy.onpremToSharedsvcs.parameters.json)"
+                        "version": "1.0",
+                        "template-path": "file(modules/vgw-connection/1.0/azureDeploy.json)",
+                        "parameters-path": "file(modules/vgw-connection/1.0/azureDeploy.onpremToSharedsvcs.parameters.json)"
                     },
                     "dependencies": [
                         "shared-services-net"
@@ -204,7 +200,7 @@
                     "module": "azure-fw",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "with-diagnosticLogs"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -283,7 +279,7 @@
                     "module": "kv",
                     "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-kv-rg",
                     "source": {
-                        "version": "with-serviceEndpoint"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -294,7 +290,7 @@
                 {
                     "module": "adds",
                     "source": {
-                        "version": "join-existing-domain"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "kv",
@@ -306,7 +302,7 @@
                 {
                     "module": "jb",
                     "source": {
-                        "version": "with-diagnosticLogs"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "kv",
@@ -341,7 +337,7 @@
             }
         },
         "active-directory": {
-            "AD-sitename": "${general.on-premises.active-directory.AD-sitename}",
+           "AD-sitename": "${general.on-premises.active-directory.AD-sitename}",
             "domain-admin-user": "${general.on-premises.active-directory.domain-admin-user}",
             "domain-name": "${general.on-premises.active-directory.domain-name}",
             "primaryDC-IP": "192.168.1.4"
@@ -377,7 +373,7 @@
                         "subnet": "${shared-services.network.subnets[0].name}"
                     },
                     {
-                        "subnet": "${shared-services.network.subnets[1].name}"
+                       "subnet": "${shared-services.network.subnets[1].name}"
                     },
                     {
                         "subnet": "${shared-services.network.subnets[2].name}"
@@ -716,7 +712,7 @@
                                     "137",
                                     "53",
                                     "49152-65535"
-                                ],
+                               ],
                                 "destinationPortRange": "",
                                 "direction": "Inbound",
                                 "priority": 170,
@@ -1004,7 +1000,7 @@
                     "user-defined-route": "",
                     "service-endpoints": []
                 }
-            ],
+           ],
             "dns-servers": [
                 "${shared-services.adds.vm-ip-address-start}"
             ]

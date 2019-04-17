@@ -260,7 +260,7 @@
             "location": "[resourceGroup().location]",
             "name": "[variables('availabilitySet-name')]",
             "tags": {
-                "displayName": "[variables('availabilitySet-name')]"
+                "layer": "Identity"
             },
             "properties": {
                 "platformFaultDomainCount": 2,
@@ -277,7 +277,7 @@
             "location": "[resourceGroup().location]",
             "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '-nic')]",
             "tags": {
-                "displayName": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '-nic')]"
+                "displayName": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), ' Network Interface')]"
             },
             "copy": {
                 "name": "nicLoop",
@@ -309,7 +309,8 @@
             "location": "[resourceGroup().location]",
             "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1))]",
             "tags": {
-                "displayName": "[concat(variables('virtualMachine-name-prefix'), copyindex(1))]",
+                "layer": "Identity",
+                "computerName": "[concat(parameters('extension-name'), '-vm',copyindex(1))]",
                 "UpdateManagement": "[variables('tag-patching')]"
             },
             "copy": {

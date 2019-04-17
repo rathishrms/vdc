@@ -67,11 +67,10 @@
         "modules-to-deploy": [
             "diagnostic-storage-account",
             "la",
-            "automation-account",
             "security-center",
             "nsg",
             "shared-services-net",
-            "diagnostic-storage-account-enable-service-endpoint",
+            "enable-service-endpoint-on-diagnostic-storage-account",
             "vgw",
             "vgw-connection",
             "onprem-vgw-connection",
@@ -95,22 +94,19 @@
             "modules": [
                 {
                     "module": "diagnostic-storage-account",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "storageV2",
-                        "template-path": "file(modules/storage-account/storageV2)",
-                       "parameters-path": "file(modules/storage-account/storageV2)"
+                        "version": "1.0",
+                        "template-path": "file(modules/storage-account/1.0)",
+                       "parameters-path": "file(modules/storage-account/1.0)"
                     },
                     "dependencies": []
                 },
                 {
                     "module": "la",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "with-solution-and-datasources",
-                        "template-path": "file(modules/la/with-solution-and-datasources)",
-                        "parameters-path": "file(modules/la/with-solution-and-datasources)",
-                        "policy-path": "file(modules/la/with-solution-and-datasources)"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "diagnostic-storage-account"
@@ -118,9 +114,9 @@
                 },
                 {
                     "module": "automation-account",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "basic"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "la",
@@ -129,9 +125,9 @@
                 },
                 {
                     "module": "security-center",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "create-resource-group": false,
                     "source": {
-                        "version": "standard"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "la"
@@ -141,7 +137,7 @@
                     "module": "nsg",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "with-diagnosticLogs"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "la",
@@ -152,19 +148,19 @@
                     "module": "shared-services-net",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "with-serviceEndpoint"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "nsg"
                     ]
                 },
                 {
-                    "module": "diagnostic-storage-account-enable-service-endpoint",
-                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-monitoring-rg",
+                    "module": "enable-service-endpoint-on-diagnostic-storage-account",
+                    "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
-                        "version": "enable-serviceEndpoint",
-                        "template-path": "file(modules/storage-account/enable-serviceEndpoint)",
-                        "parameters-path": "file(modules/storage-account/enable-serviceEndpoint)"
+                        "version": "1.0",
+                        "template-path": "file(modules/storage-account-with-serviceEndpoint/1.0)",
+                        "parameters-path": "file(modules/storage-account-with-serviceEndpoint/1.0)"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -175,7 +171,7 @@
                     "module": "vgw",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "gateway-and-publicIp"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "shared-services-net"
@@ -185,9 +181,9 @@
                     "module": "vgw-connection",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "vnet2vnet-local-to-remote-connection",
-                        "template-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection)",
-                        "parameters-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection/azureDeploy.sharedsvcsToOnprem.parameters.json)"
+                        "version": "1.0",
+                        "template-path": "file(modules/vgw-connection/1.0/azureDeploy.json)",
+                        "parameters-path": "file(modules/vgw-connection/1.0/azureDeploy.sharedsvcsToOnprem.parameters.json)"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -198,9 +194,9 @@
                     "module": "onprem-vgw-connection",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "vnet2vnet-local-to-remote-connection",
-                        "template-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection)",
-                        "parameters-path": "file(modules/vgw-connection/vnet2vnet-local-to-remote-connection/azureDeploy.onpremToSharedsvcs.parameters.json)"
+                        "version": "1.0",
+                        "template-path": "file(modules/vgw-connection/1.0/azureDeploy.json)",
+                        "parameters-path": "file(modules/vgw-connection/1.0/azureDeploy.onpremToSharedsvcs.parameters.json)"
                     },
                     "dependencies": [
                         "shared-services-net"
@@ -210,7 +206,7 @@
                     "module": "azure-fw",
                     "resource-group-name": "${general.shared-services.network.network-resource-group-name}",
                     "source": {
-                        "version": "with-diagnosticLogs"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -236,7 +232,7 @@
                     "module": "palo-alto-storage",
                     "resource-group-name": "${shared-services.paloalto-storage-resource-group-name}",
                     "source": {
-                        "version": "default"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "custom-script-palo-alto-bootstrap-1"
@@ -246,7 +242,7 @@
                     "module": "palo-alto-ingress-nva",
                     "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-paloalto-ingress-rg",
                     "source": {
-                        "version": "default"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "kv",
@@ -265,7 +261,7 @@
                     "module": "palo-alto-egress-nva",
                     "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-paloalto-egress-rg",
                     "source": {
-                        "version": "default"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "kv",
@@ -278,7 +274,7 @@
                     "module": "palo-alto-udr",
                     "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-net-rg",
                     "source": {
-                        "version": "default"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "palo-alto-egress-nva",
@@ -289,7 +285,7 @@
                     "module": "kv",
                     "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-kv-rg",
                     "source": {
-                        "version": "with-serviceEndpoint"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -300,7 +296,7 @@
                 {
                     "module": "adds",
                     "source": {
-                        "version": "join-existing-domain"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "kv",
@@ -312,7 +308,7 @@
                 {
                     "module": "jb",
                     "source": {
-                        "version": "with-diagnosticLogs"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "kv",
@@ -414,7 +410,7 @@
             "enable-ddos-protection": false,
             "address-prefix": "10.4.0.0/23",
             "network-virtual-appliance": {
-                "egress-ip": "${shared-services.network.network-virtual-appliance.palo-alto.egress.ip}",
+                "egress-ip": "${shared-services.network.network-virtual-appliance.azure-firewall.egress.ip}",
                 "azure-firewall": {
                     "egress": {
                         "ip": "10.4.1.4"

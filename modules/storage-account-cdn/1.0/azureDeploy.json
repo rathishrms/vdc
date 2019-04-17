@@ -1,0 +1,150 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "deployment-prefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Deployment prefix. E.g. Organization-DeploymentType"
+            }
+        },
+        "profileName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "endpointName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "sku": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        "profileProperties": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        "endpointProperties": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        "utcYear": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyy')]"
+        }
+    },
+    "variables": {
+        "endpointProperties": {
+            "value": {
+                "isHttpAllowed": true,
+                "isHttpsAllowed": true,
+                "originHostHeader": "cntsostorage01.blob.core.windows.net",
+                "origins": [
+                    {
+                        "name": "cntsostorage01-blob-core-windows-net",
+                        "properties": {
+                            "hostName": "cntsostorage01.blob.core.windows.net",
+                            "httpPort": 80,
+                            "httpsPort": 443
+                        }
+                    }
+                ],
+                "isCompressionEnabled": true,
+                "contentTypesToCompress": [
+                    "application/eot",
+                    "application/font",
+                    "application/font-sfnt",
+                    "application/javascript",
+                    "application/json",
+                    "application/opentype",
+                    "application/otf",
+                    "application/pkcs7-mime",
+                    "application/truetype",
+                    "application/ttf",
+                    "application/vnd.ms-fontobject",
+                    "application/xhtml+xml",
+                    "application/xml",
+                    "application/xml+rss",
+                    "application/x-font-opentype",
+                    "application/x-font-truetype",
+                    "application/x-font-ttf",
+                    "application/x-httpd-cgi",
+                    "application/x-javascript",
+                    "application/x-mpegurl",
+                    "application/x-opentype",
+                    "application/x-otf",
+                    "application/x-perl",
+                    "application/x-ttf",
+                    "font/eot",
+                    "font/ttf",
+                    "font/otf",
+                    "font/opentype",
+                    "image/svg+xml",
+                    "text/css",
+                    "text/csv",
+                    "text/html",
+                    "text/javascript",
+                    "text/js",
+                    "text/plain",
+                    "text/richtext",
+                    "text/tab-separated-values",
+                    "text/xml",
+                    "text/x-script",
+                    "text/x-component",
+                    "text/x-java-source"
+                ]
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "microsoft.cdn/profiles",
+            "apiVersion": "2018-04-02",
+            "name": "[parameters('profileName')]",
+            "location": "[resourceGroup().location]",
+            "sku": "[parameters('sku')]",
+            "properties": "[parameters('profileProperties')]"
+        },
+        {
+            "type": "microsoft.cdn/profiles/endpoints",
+            "apiVersion": "2018-04-02",
+            "name": "[concat(parameters('profileName'),'/',parameters('endpointName'))]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Cdn/profiles/', parameters('profileName'))]"
+            ],
+            "properties": "[parameters('endpointProperties')]"
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/providers/locks",
+            "apiVersion": "2016-09-01",
+            "condition": "[parameters('lock-for-deletion')]",
+            "name": "[concat(variables('diagnostic-storageAccount-name'), '/Microsoft.Authorization/storageDoNotDelete')]",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', variables('diagnostic-storageAccount-name'))]"
+            ],
+            "comments": "Resource lock on diagnostic storage account",
+            "properties": {
+                "level": "CannotDelete"
+            }
+        }
+    ],
+    "outputs": {
+        "storageAccount-resourceId":{
+            "type": "string",
+            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]"
+        },
+        "storageAccount-name": {
+            "type": "string",
+            "value": "[variables('diagnostic-storageAccount-name')]"
+        },
+        "storageAccount-sasToken": {
+            "type": "string",
+            "value": "[listAccountSas(variables('diagnostic-storageAccount-name'), '2018-07-01', variables('accountSasProperties')).accountSasToken]"
+        },
+        "storageAccount-accessKey": {
+            "type": "string",
+            "value": "[listKeys(variables('diagnostic-storageAccount-name'),'2015-06-15').key1]"
+        }
+    }
+}
