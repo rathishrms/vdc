@@ -12,13 +12,9 @@
             "type": "bool",
             "defaultValue": true
         },
-        "virtualNetwork-rules": {
-            "type": "array",
-            "defaultValue": []
-        },
-        "ip-rules": {
-            "type": "array",
-            "defaultValue": []
+        "network-acls": {
+            "type": "object",
+            "defaultValue": {}
         },
         "utcYear": {
             "type": "string",
@@ -65,10 +61,10 @@
                 },
                 "supportsHttpsTrafficOnly": true,
                 "networkAcls": {
-                    "bypass": "AzureServices",
-                    "defaultAction": "Deny",
-                    "virtualNetworkRules": "[if(equals(length(parameters('virtualNetwork-rules')), 0), json('null'), parameters('virtualNetwork-rules'))]",
-                    "ipRules": "[if(equals(length(parameters('ip-rules')), 0), json('null'), parameters('ip-rules'))]"
+                    "bypass": "[if(empty(parameters('network-acls')), 'AzureServices', parameters('network-acls').bypass)]",
+                    "defaultAction": "[if(empty(parameters('network-acls')), 'Deny', parameters('network-acls').defaultAction)]",
+                    "virtualNetworkRules": "[if(empty(parameters('network-acls')), json('null'), if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), parameters('network-acls').virtualNetworkRules))]",
+                    "ipRules": "[if(empty(parameters('network-acls')), json('null'), if(equals(length(parameters('network-acls').ipRules), 0), json('null'), parameters('network-acls').ipRules))]"
                 }
             }
         },

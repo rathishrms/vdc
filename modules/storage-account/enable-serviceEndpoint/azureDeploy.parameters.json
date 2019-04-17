@@ -1,5 +1,0 @@
-{
-    "network-acls": {
-        "value": "${ENV:ENVIRONMENT-TYPE.storage-account.network-acls}"
-    }
-}

@@ -281,6 +281,8 @@
         {
             "name": "[concat('nestedDeploymentUM-Win',variables('tag-patching')[copyindex()].name)]",
             "type": "Microsoft.Resources/deployments",
+            "comments": "Using nested deployment because a nested resource cannot have a copy function",
+            "condition": false,
             "apiVersion": "2017-05-10",
             "copy": {
                 "count": "[length(variables('tag-patching'))]",

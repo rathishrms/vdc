@@ -151,7 +151,7 @@
             "kv",
             "acr",
             "aks",
-            "role-assignments",
+            "role-assignments-rg-scope",
             "aks-node-role-assignments",
             "permissions-scripts-pre-reqs",
             "scripts-pre-reqs",
@@ -218,12 +218,10 @@
                     "dependencies": []
                 },
                 {
-                    "module": "role-assignments",
+                    "module": "role-assignments-rg-scope",
                     "resource-group-name": "${general.organization-name}-${workload.deployment-name}-rg",
                     "source": {
-                        "version": "1.0",
-                        "template-path": "file(modules/role-assignments/resourceGroup-scope/azureDeploy.json)",
-                        "parameters-path": "file(modules/role-assignments/resourceGroup-scope/azureDeploy.parameters.json)"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "aks"
@@ -233,9 +231,7 @@
                     "module": "aks-node-role-assignments",
                     "resource-group-name": "${general.organization-name}-${workload.deployment-name}-rg",
                     "source": {
-                        "version": "1.0",
-                        "template-path": "file(modules/aks-node-role-assignments/1.0/azureDeploy.json)",
-                        "parameters-path": "file(modules/aks-node-role-assignments/1.0/azureDeploy.parameters.json)"
+                        "version": "1.0"
                     },
                     "dependencies": [
                         "aks"
