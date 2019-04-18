@@ -8,42 +8,34 @@
                 "description": "Deployment prefix. E.g. Organization-DeploymentType"
             }
         },
-        "profileName": {
-            "type": "string",
-            "defaultValue": ""
-        },
-        "endpointName": {
-            "type": "string",
-            "defaultValue": ""
-        },
         "sku": {
             "type": "object",
-            "defaultValue": {}
+            "defaultValue": {
+                "name": "Standard_Microsoft"
+            }
         },
         "profileProperties": {
             "type": "object",
             "defaultValue": {}
         },
-        "endpointProperties": {
-            "type": "object",
-            "defaultValue": {}
-        },
-        "utcYear": {
-            "type": "string",
-            "defaultValue": "[utcNow('yyyy')]"
+        "storageAccount-name": {
+            "type": "string"
         }
     },
     "variables": {
+        "profile-name": "[concat(parameters('deployment-prefix'), '-cdn-profile')]",
+        "endpoint-name": "[concat(parameters('deployment-prefix'), '-cdn-profile')]",
+        "storageAccount-endpoint": "[concat(parameters('storageAccount-name'), '.blob.core.windows.net')]",
         "endpointProperties": {
             "value": {
                 "isHttpAllowed": true,
                 "isHttpsAllowed": true,
-                "originHostHeader": "cntsostorage01.blob.core.windows.net",
+                "originHostHeader": "[variables('storageAccount-endpoint')]",
                 "origins": [
                     {
-                        "name": "cntsostorage01-blob-core-windows-net",
+                        "name": "[replace(variables('storageAccount-endpoint'), '.', '-')]",
                         "properties": {
-                            "hostName": "cntsostorage01.blob.core.windows.net",
+                            "hostName": "[variables('storageAccount-endpoint')]",
                             "httpPort": 80,
                             "httpsPort": 443
                         }
@@ -100,7 +92,7 @@
         {
             "type": "microsoft.cdn/profiles",
             "apiVersion": "2018-04-02",
-            "name": "[parameters('profileName')]",
+            "name": "[variables('profile-name')]",
             "location": "[resourceGroup().location]",
             "sku": "[parameters('sku')]",
             "properties": "[parameters('profileProperties')]"
@@ -108,43 +100,13 @@
         {
             "type": "microsoft.cdn/profiles/endpoints",
             "apiVersion": "2018-04-02",
-            "name": "[concat(parameters('profileName'),'/',parameters('endpointName'))]",
+            "name": "[concat(variables('profile-name'),'/',variables('endpoint-name'))]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Cdn/profiles/', parameters('profileName'))]"
+                "[concat('Microsoft.Cdn/profiles/', variables('profile-name'))]"
             ],
-            "properties": "[parameters('endpointProperties')]"
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/providers/locks",
-            "apiVersion": "2016-09-01",
-            "condition": "[parameters('lock-for-deletion')]",
-            "name": "[concat(variables('diagnostic-storageAccount-name'), '/Microsoft.Authorization/storageDoNotDelete')]",
-            "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('diagnostic-storageAccount-name'))]"
-            ],
-            "comments": "Resource lock on diagnostic storage account",
-            "properties": {
-                "level": "CannotDelete"
-            }
+            "properties": "[variables('endpointProperties')]"
         }
     ],
-    "outputs": {
-        "storageAccount-resourceId":{
-            "type": "string",
-            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]"
-        },
-        "storageAccount-name": {
-            "type": "string",
-            "value": "[variables('diagnostic-storageAccount-name')]"
-        },
-        "storageAccount-sasToken": {
-            "type": "string",
-            "value": "[listAccountSas(variables('diagnostic-storageAccount-name'), '2018-07-01', variables('accountSasProperties')).accountSasToken]"
-        },
-        "storageAccount-accessKey": {
-            "type": "string",
-            "value": "[listKeys(variables('diagnostic-storageAccount-name'),'2015-06-15').key1]"
-        }
-    }
+    "outputs": {}
 }

@@ -34,6 +34,13 @@
             "type": "string",
             "defaultValue": "[utcNow('yyyy')]"
         },
+        "storage-account-name": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
+        },
         "storage-account-kind": {
             "type": "string",
             "defaultValue": "StorageV2"
@@ -41,12 +48,17 @@
         "storage-account-sku": {
             "type": "string",
             "defaultValue": "Standard_LRS"
+        },
+        "storage-account-access-tier": {
+            "type": "string",
+            "defaultValue": "Hot"
         }
     },
     "variables": {
         "uniqueString": "[uniqueString(subscription().id, concat(parameters('deployment-prefix'), '-la'))]",
         "diagnostic-storageAccount-prefix": "[concat(replace(parameters('deployment-prefix'), '-', ''), 'diag')]",
         "diagnostic-storageAccount-name": "[toLower(substring(replace(concat(variables('diagnostic-storageAccount-prefix'), variables('uniqueString'), variables('uniqueString')), '-', ''), 0, 23) )]",
+        "storage-account-name": "[if(empty(parameters('storage-account-name')), variables('diagnostic-storageAccount-name'), parameters('storage-account-name'))]",
         "accountSasProperties": {
             "signedServices": "bt",
             "signedPermission": "acuw",
@@ -60,7 +72,7 @@
                     "name": "virtualNetworkRules",
                     "count": "[if(not(parameters('enable-network-acls')), 1, if(equals(length(parameters('network-acls').virtualNetworkRules), 0), 1, length(parameters('network-acls').virtualNetworkRules)))]",
                     "input": {
-                        "id": "[if(parameters('enable-network-acls'), json('null'), if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), concat(parameters('vnet-id'), '/subnets/', parameters('network-acls').virtualNetworkRules[copyIndex('virtualNetworkRules')].subnet)))]"
+                        "id": "[if(not(parameters('enable-network-acls')), json('null'), if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), concat(parameters('vnet-id'), '/subnets/', parameters('network-acls').virtualNetworkRules[copyIndex('virtualNetworkRules')].subnet)))]"
                     }
                 }
             ]
@@ -76,7 +88,7 @@
         {
             "comments": "----DIAGNOSTICS STORAGE ACCOUNT-----",
             "type": "Microsoft.Storage/storageAccounts",
-            "name": "[variables('diagnostic-storageAccount-name')]",
+            "name": "[variables('storage-account-name')]",
             "apiVersion": "2018-11-01",
             "location": "[resourceGroup().location]",
             "kind": "[parameters('storage-account-kind')]",
@@ -96,6 +108,7 @@
                         "file": "[if(or(equals(parameters('storage-account-kind'), 'StorageV2'), equals(parameters('storage-account-kind'), 'Storage')), json('{\"enabled\": true}'), json('null'))]"
                     }
                 },
+                "accessTier": "[parameters('storage-account-access-tier')]",
                 "supportsHttpsTrafficOnly": true,
                 "networkAcls": "[if(empty(parameters('network-acls')), json('null'), variables('networkAcls'))]"
             }
@@ -104,9 +117,9 @@
             "type": "Microsoft.Storage/storageAccounts/providers/locks",
             "apiVersion": "2016-09-01",
             "condition": "[parameters('lock-for-deletion')]",
-            "name": "[concat(variables('diagnostic-storageAccount-name'), '/Microsoft.Authorization/storageDoNotDelete')]",
+            "name": "[concat(variables('storage-account-name'), '/Microsoft.Authorization/storageDoNotDelete')]",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('diagnostic-storageAccount-name'))]"
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storage-account-name'))]"
             ],
             "comments": "Resource lock on diagnostic storage account",
             "properties": {
@@ -117,19 +130,19 @@
     "outputs": {
         "storageAccount-resourceId":{
             "type": "string",
-            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]"
+            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storage-account-name'))]"
         },
         "storageAccount-name": {
             "type": "string",
-            "value": "[variables('diagnostic-storageAccount-name')]"
+            "value": "[variables('storage-account-name')]"
         },
         "storageAccount-sasToken": {
             "type": "string",
-            "value": "[listAccountSas(variables('diagnostic-storageAccount-name'), '2018-07-01', variables('accountSasProperties')).accountSasToken]"
+            "value": "[listAccountSas(variables('storage-account-name'), '2018-07-01', variables('accountSasProperties')).accountSasToken]"
         },
         "storageAccount-accessKey": {
             "type": "string",
-            "value": "[listKeys(variables('diagnostic-storageAccount-name'),'2015-06-15').key1]"
+            "value": "[listKeys(variables('storage-account-name'),'2015-06-15').key1]"
         }
     }
 }

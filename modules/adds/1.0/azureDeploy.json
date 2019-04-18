@@ -215,22 +215,6 @@
             "metadata": {
                 "description": "Indicates whether or not to encrypt the VM disks"
             }
-        },
-        "encryption-secrets": {
-            "type": "array",
-            "defaultValue": [
-                {
-                    "sourceVault": {
-                        "id": "[parameters('kv-id')]"
-                    },
-                    "vaultCertificates": [
-                        {
-                            "certificateUrl": "[parameters('aad-certificate-url')]",
-                            "certificateStore": "My"
-                        }
-                    ]
-                }
-            ]
         }
     },
     "variables": {
@@ -250,6 +234,19 @@
         "encryption-operation": "EnableEncryption",
         "key-encryptionAlgorithm": "RSA-OAEP",
         "dc-asg-id": "[resourceId(parameters('vnet-resourceGroup'),'Microsoft.Network/applicationSecurityGroups', concat(parameters('deployment-prefix'), '-', parameters('dc-asg-name'), '-asg'))]",
+        "encryption-secrets": [
+            {
+                "sourceVault": {
+                    "id": "[parameters('kv-id')]"
+                },
+                "vaultCertificates": [
+                    {
+                        "certificateUrl": "[parameters('aad-certificate-url')]",
+                        "certificateStore": "My"
+                    }
+                ]
+            }
+        ],
         "empty-array": [],
         "tag-patching": "3rdSat7pm"
     },
@@ -329,7 +326,7 @@
                     "computerName": "[concat(parameters('extension-name'), '-vm',copyindex(1))]",
                     "adminUsername": "[parameters('admin-username')]",
                     "adminPassword": "[parameters('admin-password')]",
-                    "secrets": "[if(equals(parameters('enable-encryption'), bool('false')), variables('empty-array'), parameters('encryption-secrets'))]"
+                    "secrets": "[if(equals(parameters('enable-encryption'), bool('false')), variables('empty-array'), variables('encryption-secrets'))]"
                 },
                 "hardwareProfile": {
                     "vmSize": "[parameters('virtualMachine-size')]"
