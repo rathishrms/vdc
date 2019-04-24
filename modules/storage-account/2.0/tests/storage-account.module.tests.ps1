@@ -26,15 +26,16 @@
 
 #region Parameters
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$here = Join-Path $here ".."
 $template = Split-Path -Leaf $here
 
 $TemplateFileTestCases = @()
-ForEach ( $File in (Get-ChildItem (Join-Path "$here" ".." "*deploy.json") | Select-Object  -ExpandProperty Name) ) {
+ForEach ( $File in (Get-ChildItem (Join-Path "$here" "*deploy.json") | Select-Object  -ExpandProperty Name) ) {
     $TemplateFileTestCases += @{ TemplateFile = $File }
 }
 
 $ParameterFileTestCases = @()
-ForEach ( $File in (Get-ChildItem (Join-Path "$here" ".." "*.parameters*.json") | Select-Object  -ExpandProperty Name) ) {
+ForEach ( $File in (Get-ChildItem (Join-Path "$here" "*.parameters*.json") | Select-Object  -ExpandProperty Name) ) {
 	$ParameterFileTestCases += @{ ParameterFile = $File }
 }
 
@@ -46,7 +47,7 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
     Context "Template File Syntax" {
 
         It "Has a JSON template file" {
-            (Join-Path "$here" ".." "*deploy.json") | Should Exist
+            (Join-Path "$here" "*deploy.json") | Should Exist
         }
 
         It "Converts from JSON and has the expected properties" -TestCases $TemplateFileTestCases {
@@ -57,7 +58,7 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
             'variables',
             'resources',                                
             'outputs' | Sort-Object
-			$templateProperties = (Get-Content (Join-Path "$here" ".." "$TemplateFile") `
+			$templateProperties = (Get-Content (Join-Path "$here" "$TemplateFile") `
 									| ConvertFrom-Json -ErrorAction SilentlyContinue) `
 									| Get-Member -MemberType NoteProperty `
 									| Sort-Object -Property Name `
@@ -69,7 +70,7 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
     Context "Parameter File Syntax" {
 	   
 		It "Has environment parameters file" {        
-    		(Join-Path "$here" ".." "*.parameters*.json") | Should Exist
+    		(Join-Path "$here" "*.parameters*.json") | Should Exist
 		}
 
 		It "Parameter file does not contains the expected properties" -TestCases $ParameterFileTestCases {
@@ -77,7 +78,7 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
             $expectedProperties = '$schema',
             'contentVersion',
             'parameters' | Sort-Object
-			$templateFileProperties = (Get-Content (Join-Path "$here" ".." "$ParameterFile") `
+			$templateFileProperties = (Get-Content (Join-Path "$here" "$ParameterFile") `
 										| ConvertFrom-Json -ErrorAction SilentlyContinue) `
 										| Get-Member -MemberType NoteProperty `
 										| Sort-Object -Property Name `
@@ -95,12 +96,12 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
 				'Parameters' = $null
 			}
 
-			ForEach ( $File in (Get-ChildItem (Join-Path "$here" ".." "*deploy.json") `
+			ForEach ( $File in (Get-ChildItem (Join-Path "$here" "*deploy.json") `
 									| Select-Object  -ExpandProperty Name) ) {
 				$Module.Template = $File
 			}
 
-			ForEach ( $File in (Get-ChildItem (Join-Path "$here" ".." "*.parameters*.json") `
+			ForEach ( $File in (Get-ChildItem (Join-Path "$here" "*.parameters*.json") `
 									| Select-Object  -ExpandProperty Name) ) {
 				$Module.Parameters = $File
 			}
@@ -108,12 +109,12 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
 
 		It "Is count of required parameters in template file equal or lesser than count of all parameters in parameters file" {
 			
-			$requiredParametersInTemplateFile = (Get-Content (Join-Path "$here" ".." "$($Module.Template)") `
+			$requiredParametersInTemplateFile = (Get-Content (Join-Path "$here" "$($Module.Template)") `
 							| ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters.PSObject.Properties `
 							| Where-Object -FilterScript { -not ($_.Value.PSObject.Properties.Name -eq "defaultValue") } `
 							| Sort-Object -Property Name `
 							| ForEach-Object Name
-			$allParametersInParametersFile = (Get-Content (Join-Path "$here" ".." "$($Module.Parameters)") `
+			$allParametersInParametersFile = (Get-Content (Join-Path "$here" "$($Module.Parameters)") `
 							| ConvertFrom-Json -ErrorAction SilentlyContinue).PSObject.Properties `
 							| Sort-Object -Property Name `
 							| ForEach-Object Name
@@ -123,11 +124,11 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
 
 		It "Has all parameters in parameters file existing in template file" {
 			
-			$allParametersInTemplateFile = (Get-Content (Join-Path "$here" ".." "$($Module.Template)") `
+			$allParametersInTemplateFile = (Get-Content (Join-Path "$here" "$($Module.Template)") `
 							| ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters.PSObject.Properties `
 							| Sort-Object -Property Name `
 							| ForEach-Object Name
-			$allParametersInParametersFile = (Get-Content (Join-Path "$here" ".." "$($Module.Parameters)") `
+			$allParametersInParametersFile = (Get-Content (Join-Path "$here" "$($Module.Parameters)") `
 							| ConvertFrom-Json -ErrorAction SilentlyContinue).PSObject.Properties `
 							| Sort-Object -Property Name `
 							| ForEach-Object Name
@@ -136,12 +137,12 @@ Describe "Template: $template - Tier1 Storage Accounts" -Tags Unit {
 
 		It "Has required parameters in template file existing in parameters file" {
 			
-			$requiredParametersInTemplateFile = (Get-Content (Join-Path "$here" ".." "$($Module.Template)") `
+			$requiredParametersInTemplateFile = (Get-Content (Join-Path "$here" "$($Module.Template)") `
 							| ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters.PSObject.Properties `
 							| Where-Object -FilterScript { -not ($_.Value.PSObject.Properties.Name -eq "defaultValue") } `
 							| Sort-Object -Property Name `
 							| ForEach-Object Name
-			$allParametersInParametersFile = (Get-Content (Join-Path "$here" ".." "$($Module.Parameters)") `
+			$allParametersInParametersFile = (Get-Content (Join-Path "$here" "$($Module.Parameters)") `
 							| ConvertFrom-Json -ErrorAction SilentlyContinue).PSObject.Properties `
 							| Sort-Object -Property Name `
 							| ForEach-Object Name
