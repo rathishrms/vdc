@@ -3,7 +3,7 @@
 		==============================================================================================
 		Copyright(c) Microsoft Corporation. All rights reserved.
 
-		File:		tier1.storageaccount.output.test.ps1
+		File:		storage-account.output.tests.ps1
 
 		Purpose:	Test - Storage Account ARM Template Output Variables
 
