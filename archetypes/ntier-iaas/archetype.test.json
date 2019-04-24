@@ -17,12 +17,10 @@
         "shared-services": {
             "subscription-id": "00000000-0000-0000-0000-000000000000",
             "deployment-name": "ssvcs",
-            "adds": {
-                "vm-ip-address-start": "10.4.0.46"
-            },
             "active-directory": {
                 "domain-admin-user": "contoso",
-                "domain-name": "contoso.com"
+                "domain-name": "contoso.com",
+                "vm-ip-address-start": "10.4.0.46"
             },
             "network": {
                 "network-virtual-appliance": {
@@ -202,10 +200,8 @@
     "shared-services":{
         "subscription-id": "${general.shared-services.subscription-id}",
         "deployment-name": "${general.shared-services.deployment-name}",
-        "adds": {
-            "vm-ip-address-start": "${general.shared-services.adds.vm-ip-address-start}"
-        },
         "active-directory": {
+            "vm-ip-address-start": "${general.shared-services.active-directory.vm-ip-address-start}",
             "domain-admin-user": "${general.shared-services.active-directory.domain-admin-user}",
             "domain-name": "${general.shared-services.active-directory.domain-name}"
         },
@@ -501,7 +497,8 @@
                 }
             ],
             "dns-servers": [
-                "${shared-services.adds.vm-ip-address-start}"
+                "${shared-services.active-directory.vm-ip-address-start}",
+                "next-ip(${shared-services.active-directory.vm-ip-address-start}, 1)"
             ]
         }
     }

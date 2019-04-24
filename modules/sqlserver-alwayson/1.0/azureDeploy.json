@@ -190,6 +190,8 @@
         "key-encryptionAlgorithm": "RSA-OAEP",
         "MMA-extension-name": "OMSExtension",
         "dsc-join-to-domain-extension-name": "DSCSetupIISAndJoinDomain",
+        "dsc-setup-sql-extension-name": "DSCSetupSQLAndJoinDomain",
+        "pwsh-sleep-extension-name": "PSInstallDSCModules",
         "lb-ID": "[resourceId('Microsoft.Network/loadBalancers',variables('sql-lb-name'))]",
         "sql-frontendIP-config-id": "[concat(variables('lb-ID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
         "lb-pool-id": "[concat(variables('lb-ID'),'/backendAddressPools/', parameters('sql-backend-pool-name'))]",
@@ -808,7 +810,7 @@
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), 'DSCSetupSQLAndJoinDomain')]"
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('dsc-join-to-domain-extension-name'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
@@ -897,7 +899,7 @@
                             "resources":[
                                 {
                                     "type": "extensions",
-                                    "name": "DSCSetupSQLAndJoinDomain",
+                                    "name": "[variables('dsc-setup-sql-extension-name')]",
                                     "apiVersion": "2017-03-30",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
@@ -967,7 +969,7 @@
                             "resources":[
                                 {
                                     "type": "extensions",
-                                    "name": "PSInstallDSCModules",
+                                    "name": "[variables('pwsh-sleep-extension-name')]",
                                     "apiVersion": "2017-03-30",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
@@ -1019,7 +1021,7 @@
                             "resources":[
                                 {
                                     "type": "extensions",
-                                    "name": "DSCSetupSQLAndJoinDomain",
+                                    "name": "[variables('dsc-setup-sql-extension-name')]",
                                     "apiVersion": "2017-03-30",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
@@ -1089,7 +1091,7 @@
                             "resources":[
                                 {
                                     "type": "extensions",
-                                    "name": "DSCSetupSQLAndJoinDomain",
+                                    "name": "[variables('dsc-setup-sql-extension-name')]",
                                     "apiVersion": "2017-03-30",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
