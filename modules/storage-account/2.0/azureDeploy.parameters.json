@@ -1,8 +1,8 @@
 {
   "storage-account-name": {
-    "value": "${general.organization-name}-${ENV:ENVIRONMENT-TYPE.deployment-name}-storage"
+    "value": "vdcstorageawus01"
   },
   "network-acls": {
-    "value": "${ENV:ENVIRONMENT-TYPE.storage-account.network-acls}"
+    "value": {}
   }
 }
