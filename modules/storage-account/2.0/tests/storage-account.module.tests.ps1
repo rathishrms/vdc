@@ -3,7 +3,7 @@
 		==============================================================================================
 		Copyright(c) Microsoft Corporation. All rights reserved.
 
-		File:		tier1.storageaccounts.tests.ps1
+		File:		storage-account.module.tests.ps1
 
 		Purpose:	Pester - Test Storage Account ARM Templates
 
@@ -18,7 +18,8 @@
 
 		Deployment steps of the script are outlined below.
         1) Test Template File Syntax
-        2) Test Parameter File Syntax
+		2) Test Parameter File Syntax
+		3) Test Template and Parameter File Compactibility
 #>
 
 #Requires -Version 5
