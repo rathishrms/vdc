@@ -40,7 +40,7 @@
         },
         "enable-ddos-protection": {
             "type": "bool",
-            "defaultValue": true,
+            "defaultValue": false,
             "metadata": {
                 "description": "Determines whether or not DDoS Protection is enabled in the VNET"
             }

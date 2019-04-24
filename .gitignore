@@ -74,3 +74,4 @@ src/build
 # Azure deployment credentials
 *.pubxml
 archetypes/aks/archetypes.json
+archetypes/shared-services/archetype.test.devops.json

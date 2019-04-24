@@ -1,6 +1,6 @@
 {
-  "deployment-prefix": {
-    "value": "${general.organization-name}-${ENV:ENVIRONMENT-TYPE.deployment-name}"
+  "storage-account-name": {
+    "value": "${general.organization-name}-${ENV:ENVIRONMENT-TYPE.deployment-name}-storage"
   },
   "network-acls": {
     "value": "${ENV:ENVIRONMENT-TYPE.storage-account.network-acls}"

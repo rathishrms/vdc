@@ -1,25 +1,30 @@
 {
     "general": {
-        "organization-name": "org",
-        "tenant-id": "00000000-0000-0000-0000-000000000000",
-        "deployment-user-id": "00000000-0000-0000-0000-000000000000",
-        "vdc-storage-account-name": "storage",
+        "organization-name": "cntso",
+        "tenant-id": "b590c310-f80d-4c5b-981f-7dc9c87ea414",
+        "deployment-user-id": "d1967a51-a613-44aa-aead-a284ef04ed66",
+        "vdc-storage-account-name": "cntsostorage01",
         "vdc-storage-account-rg": "vdc-storage-rg",
         "on-premises": {
-            "subscription-id": "00000000-0000-0000-0000-000000000000",
-            "deployment-name": "onprem",
+            "subscription-id": "0d1a176a-24aa-4490-83d7-957707a93b4d",
+            "deployment-name": "cus01-onprem",
             "region": "Central US",
             "active-directory": {
                 "AD-sitename": "Cloud-Site",
                 "domain-admin-user": "contoso",
-                "domain-name": "contoso.com"
-            }
+                "domain-name": "contoso.com",
+                "primaryDC-IP": "192.168.1.4"
+            },
+            "network": {
+                "address-prefix": "192.168.1.0/28"
+            },
+            "allow-rdp-address-range": "192.168.1.4"
         },
         "shared-services": {
-            "subscription-id": "00000000-0000-0000-0000-000000000000",
-            "deployment-name": "ssvcs",
+            "subscription-id": "2bbc4db2-62c4-49aa-b2c5-9e4a34e83246",
+            "deployment-name": "cus01-shrd-svcs",
             "region": "West US 2",
-            "adds": {
+            "active-directory": {
                 "vm-ip-address-start": "10.4.0.46"
             },
             "vm-configuration": {
@@ -31,11 +36,11 @@
                 "secrets": [
                     {
                         "secretName": "${general.shared-services.vm-configuration.local-admin-user}",
-                        "secretValue": ""
+                        "secretValue": "VDCPa55w0rd2019"
                     },
                     {
                         "secretName": "${general.on-premises.active-directory.domain-admin-user}",
-                        "secretValue": ""
+                        "secretValue": "VDCP@55w0rd2019"
                     },
                     {
                         "secretName": "self-certificate-base64",
@@ -70,6 +75,7 @@
         "modules-to-deploy": [
             "diagnostic-storage-account",
             "la",
+            "automation-account",
             "security-center",
             "nsg",
             "shared-services-net",
@@ -156,8 +162,8 @@
                     "resource-group-name": "${general.organization-name}-${shared-services.deployment-name}-diagnostics-rg",
                     "source": {
                         "version": "1.0",
-                        "template-path": "file(modules/storage-account-with-serviceEndpoint/1.0)",
-                        "parameters-path": "file(modules/storage-account-with-serviceEndpoint/1.0)"
+                        "template-path": "file(modules/storage-account/1.0)",
+                        "parameters-path": "file(modules/storage-account/1.0/azureDeploy.enable-serviceEndpoint.parameters.json)"
                     },
                     "dependencies": [
                         "shared-services-net",
@@ -333,7 +339,7 @@
         "deployment-name": "${general.on-premises.deployment-name}",
         "region": "${general.on-premises.region}",
         "network": {
-            "address-prefix": "192.168.1.0/28",
+            "address-prefix": "${general.on-premises.network.address-prefix}",
             "resource-group-name": "${general.organization-name}-${on-premises.deployment-name}-net-rg",
             "virtual-gateway": {
                 "gateway-name": "${general.organization-name}-${on-premises.deployment-name}-gw"
@@ -343,16 +349,16 @@
            "AD-sitename": "${general.on-premises.active-directory.AD-sitename}",
             "domain-admin-user": "${general.on-premises.active-directory.domain-admin-user}",
             "domain-name": "${general.on-premises.active-directory.domain-name}",
-            "primaryDC-IP": "192.168.1.4"
+            "primaryDC-IP": "${general.on-premises.active-directory.primaryDC-IP}"
         },
-        "allow-rdp-address-range": "192.168.1.4"
+        "allow-rdp-address-range": "${general.on-premises.allow-rdp-address-range}"
     },
     "shared-services": {
         "subscription-id": "${general.shared-services.subscription-id}",
         "deployment-name": "${general.shared-services.deployment-name}",
         "region": "${general.shared-services.region}",
-        "adds": {
-            "vm-ip-address-start": "${general.shared-services.adds.vm-ip-address-start}"
+        "active-directory": {
+            "vm-ip-address-start": "${general.shared-services.active-directory.vm-ip-address-start}"
         },
         "vm-configuration": {
             "local-admin-user": "${general.shared-services.vm-configuration.local-admin-user}",
@@ -376,7 +382,7 @@
                         "subnet": "${shared-services.network.subnets[0].name}"
                     },
                     {
-                       "subnet": "${shared-services.network.subnets[1].name}"
+                        "subnet": "${shared-services.network.subnets[1].name}"
                     },
                     {
                         "subnet": "${shared-services.network.subnets[2].name}"
@@ -1005,8 +1011,9 @@
                 }
            ],
             "dns-servers": [
-                "${shared-services.adds.vm-ip-address-start}",
-                "next-ip(${shared-services.adds.vm-ip-address-start}, 1)"
+                "${on-premises.network.address-prefix}",
+                "${shared-services.active-directory.vm-ip-address-start}",
+                "next-ip(${shared-services.active-directory.vm-ip-address-start}, 1)"
             ]
         }
     }

@@ -58,6 +58,9 @@
             }
         ]
     },
+    "enable-ddos-protection": {
+        "value": "${workload.network.enable-ddos-protection}"
+    },
     "azure-firewall-networkRules-collection": {
         "value": [
             {
