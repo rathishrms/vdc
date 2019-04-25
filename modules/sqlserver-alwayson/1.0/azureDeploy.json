@@ -199,7 +199,8 @@
         "data-asg-id": "[resourceId(parameters('vnet-resourceGroup'), 'Microsoft.Network/applicationSecurityGroups', concat(parameters('deployment-prefix'), '-', parameters('data-asg-name'), '-asg'))]",
         "cloud-witness-storageAccount-prefix": "[concat(parameters('extension-name'), 'cw')]",
         "cloud-witness-storageAccount-name": "[toLower(substring(replace(concat(variables('cloud-witness-storageAccount-prefix'), variables('uniqueString'), variables('uniqueString')), '-', ''), 0, 23) )]",
-        "cloud-witness-storageAccount-id": "[resourceId('Microsoft.Storage/storageAccounts/', variables('cloud-witness-storageAccount-name'))]"
+        "cloud-witness-storageAccount-id": "[resourceId('Microsoft.Storage/storageAccounts/', variables('cloud-witness-storageAccount-name'))]",
+        "tag-patching": "3rdSat7pm"
     },
     "resources": [
         {
@@ -359,6 +360,11 @@
             "copy": {
                 "name": "vmLoop",
                 "count": "[parameters('virtualMachine-count')]"
+            },
+            "tags": {
+                "layer": "Data",
+                "computerName": "[concat(parameters('extension-name'), '-vm',copyindex(1))]",
+                "UpdateManagement": "[variables('tag-patching')]"
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySet-name'))]",
