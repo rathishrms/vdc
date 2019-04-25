@@ -190,7 +190,7 @@
         "key-encryptionAlgorithm": "RSA-OAEP",
         "MMA-extension-name": "OMSExtension",
         "dsc-join-to-domain-extension-name": "DSCSetupIISAndJoinDomain",
-        "dsc-setup-sql-extension-name": "DSCSetupSQLAndJoinDomain",
+        "dsc-setup-sql-extension-name": "DSCSetupIISAndJoinDomain",
         "pwsh-sleep-extension-name": "PSInstallDSCModules",
         "lb-ID": "[resourceId('Microsoft.Network/loadBalancers',variables('sql-lb-name'))]",
         "sql-frontendIP-config-id": "[concat(variables('lb-ID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",

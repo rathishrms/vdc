@@ -179,7 +179,9 @@
                                         "*.bing.com",
                                         "*.ubuntu.com",
                                         "api.snapcraft.io",
-                                        "api.rubygems.org"
+                                        "api.rubygems.org",
+                                        "*.powershellgallery.com",
+                                        "powershellgallery.com"
                                     ]
                                 }
                             ]
