@@ -14,7 +14,7 @@
         "value": "${shared-services.vm-configuration.local-admin-user}"
     },
     "extension-name": {
-        "value": "addsv2"
+        "value": "adds"
     },
     "os-image": {
         "value": {

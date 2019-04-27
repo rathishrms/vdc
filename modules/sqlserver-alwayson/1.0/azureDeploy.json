@@ -782,6 +782,66 @@
                                                 "counterSpecifier": "\\Network Interface(*)\\Packets Received Errors",
                                                 "unit": "Count",
                                                 "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Buffer Manager\\Page reads/sec",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Buffer Manager\\Page writes/sec",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Buffer Manager\\Checkpoint pages/sec",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Buffer Manager\\Lazy writes/sec",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Buffer Manager\\Buffer cache hit ratio",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Buffer Manager\\Database pages",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Memory Manager\\Total Server Memory (KB)",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:Memory Manager\\Memory Grants Pending",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:General Statistics\\User Connections",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:SQL Statistics\\Batch Requests/sec",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:SQL Statistics\\SQL Compilations/sec",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
+                                            },
+                                            {
+                                                "counterSpecifier": "\\SQLServer:SQL Statistics\\SQL Re-Compilations/sec",
+                                                "unit": "Count",
+                                                "sampleRate": "PT60S"
                                             }
                                         ]
                                     },

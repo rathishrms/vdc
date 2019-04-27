@@ -181,7 +181,9 @@
                                         "api.snapcraft.io",
                                         "api.rubygems.org",
                                         "*.powershellgallery.com",
-                                        "powershellgallery.com"
+                                        "powershellgallery.com", 
+                                        "*.msecnd.net",
+                                        "msecnd.net"
                                     ]
                                 }
                             ]
