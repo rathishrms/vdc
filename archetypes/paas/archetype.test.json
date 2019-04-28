@@ -42,7 +42,9 @@
             "deployment-name": "paas",
             "region": "Central US",
             "azure-sql-configuration": {
-                "admin-user": "sql-admin-user"
+                "admin-user": "sql-admin-user",
+                "aad-admin-objectId": "00000000-0000-0000-0000-000000000000",
+                "aad-admin-email": ""
             },
             "keyvault": {
                 "secrets": [
@@ -184,7 +186,9 @@
         "deployment-name": "${general.workload.deployment-name}",
         "region": "${general.workload.region}",
         "azure-sql-configuration": {
-            "admin-user": "${general.workload.azure-sql-configuration.admin-user}"
+            "admin-user": "${general.workload.azure-sql-configuration.admin-user}",
+            "aad-admin-objectId": "${general.workload.azure-sql-configuration.aad-admin-objectId}",
+            "aad-admin-email": "${general.workload.azure-sql-configuration.aad-admin-email}"
         },
         "keyvault": "${general.workload.keyvault}",
         "log-analytics": {

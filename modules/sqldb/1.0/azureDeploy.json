@@ -14,6 +14,12 @@
                 "description": "The password given to the admin user."
             }
         },
+        "aad-admin-objectId": {
+            "value": "${workload.azure-sql-configuration.aad-admin-objectId}"
+        },
+        "aad-admin-email": {
+            "value": "${workload.azure-sql-configuration.aad-admin-email}"
+        },
         "vnet-id": {
             "type": "string",
             "metadata": {
@@ -25,7 +31,16 @@
             "metadata": {
                 "description": "Info about Azure SQL Server"
             }
-        }        
+        },
+        "logs-retention-in-days": {
+            "type": "int",
+            "defaultValue": 365,
+            "minValue": 0,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Specifies the number of days that logs will be kept for; a value of 0 will retain data indefinitely."
+            }
+        }      
     },
     "variables": {
         "server-name": "[parameters('sql-server-properties').name]"
@@ -41,6 +56,45 @@
                 "administratorLoginPassword": "[parameters('admin-password')]",
                 "version": "12.0"
             }          
+        },
+        {
+            "name": "[concat(variables('server-name'), '/SecurityAlerts')]",
+            "type": "Microsoft.Sql/servers/securityAlertPolicies",
+            "apiVersion": "2017-03-01-preview",
+            "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', variables('server-name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "emailAccountAdmins": true
+            }
+        },
+        {
+            "name": "[concat(variables('server-name'), '/AuditingSettings')]",
+            "type": "Microsoft.Sql/servers/auditingSettings",
+            "apiVersion": "2017-03-01-preview",
+            "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', variables('server-name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "isAzureMonitorTargetEnabled": true,
+                "retentionDays": "[parameters('logs-retention-in-days')]"
+            }
+        },
+        {
+            "name": "[concat(variables('server-name'), '/activeDirectory')]",
+            "type": "Microsoft.Sql/servers/administrators",
+            "apiVersion": "2014-04-01",
+            "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', variables('server-name'))]"
+            ],
+            "properties": {
+                "administratorType": "ActiveDirectory",
+                "login": "[parameters('aad-admin-email')]",
+                "sid": "[parameters('aad-user-object-id')]",
+                "tenantId": "[subscription().tenantId]"
+            }
         },
         {
             "name": "[concat(variables('server-name'), '/', parameters('sql-server-properties')['virtualNetwork-rules'][copyIndex()].name)]",
@@ -77,6 +131,108 @@
             "sku": {
                 "name": "[parameters('sql-server-properties').databases[copyIndex()].sku.name]",
                 "tier": "[parameters('sql-server-properties').databases[copyIndex()].sku.tier]"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/providers/diagnosticSettings",
+            "name": "[concat(variables('server-name'), '/', variables('sql-server-properties').databases[copyIndex()].name, '/Microsoft.Insights/', 'service')]",
+            "apiVersion": "2017-05-01-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', variables('server-name'))]",
+                "[variables('sql-server-properties').databases[copyIndex()].name]"
+            ],
+            "copy": {
+                "name": "databases",
+                "count": "[length(variables('sql-server-properties').databases)]"
+            },
+            "properties": {
+                "storageAccountId": "[resourceId(variables('oms-workspace-resourceGroup'), 'Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]",
+                "workspaceId": "[resourceId(variables('oms-workspace-resourceGroup'), 'Microsoft.OperationalInsights/workspaces', variables('oms-workspace-name'))]",
+                "logs": [
+                    {
+                        "category": "SQLInsights",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "AutomaticTuning",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "QueryStoreRuntimeStatistics",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "QueryStoreWaitStatistics",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "Errors",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "DatabaseWaitStatistics",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "Timeouts",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "Blocks",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    },
+                    {
+                        "category": "Deadlocks",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    }
+                ],
+                "metrics": [
+                    {
+                        "category": "AllMetrics",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "enabled": true,
+                            "days": "[parameters('logs-retention-in-days')]"
+                        }
+                    }
+                ]
             }
         }
     ]
