@@ -121,13 +121,13 @@
                 "description": "A CIDR notation IP for Docker bridge."
             }
         },
-        "oms-id": {
+        "la-workspace-id": {
             "type": "string",
             "metadata": {
-                "description": "Resource ID containing the insights"
+                "description": "WorkspaceId or CustomerId value of OMS. This value is referenced in OMS VM Extension"
             }
         },
-        "diagnostic-event-hub-name": {
+        "diagnostics-event-hub-name": {
             "type": "string",
             "defaultValue": "",
             "metadata": {
@@ -140,10 +140,10 @@
               "description": "Resource ID of the event hub authorization rule for the Event Hubs namespace in which the event hub should be created or streamed to."
             }
         },
-        "oms-storage-id": {
+        "storageAccount-resourceId": {
             "type": "string",
             "metadata": {
-                "description": "Storage account for the diagnostics events"
+                "description": "Diagnostic Storage Account resource identifier"
             }
         },
         "rbac-server-appid": {
@@ -197,7 +197,7 @@
             "omsagent": {
                 "enabled": true,
                 "config": {
-                    "logAnalyticsWorkspaceResourceID": "[parameters('oms-id')]"
+                    "logAnalyticsWorkspaceResourceID": "[parameters('la-workspace-id')]"
                 }
             }
         },
@@ -275,7 +275,7 @@
                     "serverAppSecret": "[parameters('rbac-server-secret')]",
                     "tenantID": "[parameters('rbac-tenant')]"
                 },
-                "addonProfiles": "[if( empty(parameters('oms-id')) , variables('emptyContent'), variables('omsAgentConfig'))]"
+                "addonProfiles": "[if( empty(parameters('la-workspace-id')) , variables('emptyContent'), variables('omsAgentConfig'))]"
                 
             },
             "resources": [
@@ -287,9 +287,9 @@
                     ],
                     "apiVersion": "2017-05-01-preview",
                     "properties": {
-                        "workspaceId": "[parameters('oms-id')]",
-                        "storageAccountId": "[parameters('oms-storage-id')]",
-                        "eventHubName": "[parameters('diagnostic-event-hub-name')]",
+                        "workspaceId": "[parameters('la-workspace-id')]",
+                        "storageAccountId": "[parameters('storageAccount-resourceId')]",
+                        "eventHubName": "[parameters('diagnostics-event-hub-name')]",
                         "eventHubAuthorizationRuleId": "[parameters('diagnostics-event-hub-auth-rule-id')]",
                         "logs": [
                             {
