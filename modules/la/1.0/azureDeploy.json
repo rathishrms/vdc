@@ -98,13 +98,17 @@
             "Name": "[concat('Security', '(', variables('la-workspace-name'), ')')]",
             "GalleryName": "Security"
         },
-        "SecurityCenterFree": {
+        "SecurityCenter": {
             "Name": "[concat('SecurityCenterFree', '(', variables('la-workspace-name'), ')')]",
             "GalleryName": "SecurityCenterFree"
         },
         "ChangeTracking": {
             "Name": "[concat('ChangeTracking', '(', variables('la-workspace-name'), ')')]",
             "GalleryName": "ChangeTracking"
+        },
+        "KeyVaultAnalytics":{
+            "name": "[concat('KeyVaultAnalytics', '(', variables('la-workspace-name'), ')')]",
+            "galleryName": "KeyVaultAnalytics"
         },
         "log-analytics-search-version": 1
     },
@@ -1097,9 +1101,9 @@
                 {
                     "apiVersion": "2015-11-01-preview",
                     "location": "[parameters('location')]",
-                    "name": "[variables('SecurityCenterFree').Name]",
+                    "name": "[variables('SecurityCenter').Name]",
                     "type": "Microsoft.OperationsManagement/solutions",
-                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('SecurityCenterFree').Name)]",
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('SecurityCenter').Name)]",
                     "dependsOn": [
                         "[concat('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]",
                         "[variables('Security').Name]"
@@ -1108,8 +1112,8 @@
                         "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]"
                     },
                     "plan": {
-                        "name": "[variables('SecurityCenterFree').Name]",
-                        "product": "[Concat('OMSGallery/', variables('SecurityCenterFree').GalleryName)]",
+                        "name": "[variables('SecurityCenter').Name]",
+                        "product": "[Concat('OMSGallery/', variables('SecurityCenter').GalleryName)]",
                         "publisher": "Microsoft",
                         "promotionCode": ""
                     }
@@ -1122,7 +1126,7 @@
                     "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('ChangeTracking').Name)]",
                     "dependsOn": [
                         "[concat('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]",
-                        "[variables('SecurityCenterFree').Name]"
+                        "[variables('SecurityCenter').Name]"
                     ],
                     "properties": {
                         "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]"
@@ -1130,6 +1134,26 @@
                     "plan": {
                         "name": "[variables('ChangeTracking').Name]",
                         "product": "[Concat('OMSGallery/', variables('ChangeTracking').GalleryName)]",
+                        "publisher": "Microsoft",
+                        "promotionCode": ""
+                    }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "location": "[parameters('location')]",
+                    "name": "[variables('KeyVaultAnalytics').Name]",
+                    "type": "Microsoft.OperationsManagement/solutions",
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('KeyVaultAnalytics').Name)]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]",
+                        "[variables('ChangeTracking').Name]"
+                    ],
+                    "properties": {
+                        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('la-workspace-name'))]"
+                    },
+                    "plan": {
+                        "name": "[variables('KeyVaultAnalytics').Name]",
+                        "product": "[Concat('OMSGallery/', variables('KeyVaultAnalytics').GalleryName)]",
                         "publisher": "Microsoft",
                         "promotionCode": ""
                     }

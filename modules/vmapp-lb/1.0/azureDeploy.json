@@ -14,10 +14,16 @@
                 "description":""
             }
         },
-        "output-params-storage-account-name":{  
-            "type":"string",
-            "metadata":{  
-                "description":""
+        "output-params-storage-account-name": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Default storage account name. Storage account that contains output parameters and common scripts"
+            }
+        },
+        "output-params-storage-key": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Default storage account Key. Storage account that contains output parameters and common scripts"
             }
         },
         "vnet-id": {
@@ -78,7 +84,7 @@
             }
         },
         "la-primary-shared-key": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "WorkspaceKey value of OMS. This value is referenced in OMS VM Extension"
             }
@@ -237,7 +243,23 @@
             }
         ],
         "empty-array": [],
-        "tag-patching": "3rdSat7pm"
+        "tag-patching": "3rdSat7pm",
+        "windows-password-policies-extension-name": "PwdPolicies",
+        "windows-dependency-extension-name": "DependencyAgent",
+        "windows-dependency-extension-publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+        "windows-dependency-extension-type": "DependencyAgentWindows",
+        "windows-dependency-extension-handler-version": "9.6",
+        "max-password-age": 70,
+        "min-password-age": 1,
+        "min-password-length": 14,
+        "pwd-history-count": 24,
+        "pwd-min-length-config-name": "MinimumPasswordLength",
+        "pwd-min-age-config-name": "MinimumPasswordAge",
+        "pwd-not-last-24-config-name": "EnforcePasswordHistory",
+        "pwd-without-reversible-encryption-config-name": "StorePasswordsUsingReversibleEncryption",
+        "pwd-max-age-config-name": "MaximumPasswordAge",
+        "pwd-complexity-config-name": "PasswordMustMeetComplexityRequirements",
+        "web-server-with-tls-1.1-config-name": "AuditSecureProtocol"
     },
     "resources": [
         {
@@ -808,13 +830,188 @@
                 },
                 {
                     "type": "extensions",
+                    "name": "[variables('windows-password-policies-extension-name')]",
+                    "apiVersion": "2017-03-30",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.8",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "[concat('https://', parameters('output-params-storage-account-name'), '.blob.core.windows.net/scripts/windows/enable-local-policy-settings.ps1')]"
+                            ]
+                        },
+                        "protectedSettings": {
+                            "storageAccountName": "[parameters('output-params-storage-account-name')]",
+                            "storageAccountKey": "[parameters('output-params-storage-key')]",
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ./windows/enable-local-policy-settings.ps1 -MaxPwdAge ', variables('max-password-age'), ' -MinPwdAge ', variables('min-password-age'), ' -MinPwdLength ', variables('min-password-length'), ' -PwdHistoryCount ', variables('pwd-history-count'))]"
+                        }
+                    }
+                },
+                {
+                    "type": "extensions",
+                    "name": "[variables('windows-dependency-extension-name')]",
+                    "apiVersion": "2018-06-01",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-password-policies-extension-name')]"
+                    ],
+                    "properties": {
+                        "publisher": "[variables('windows-dependency-extension-publisher')]",
+                        "type": "[variables('windows-dependency-extension-type')]",
+                        "typeHandlerVersion": "[variables('windows-dependency-extension-handler-version')]",
+                        "autoUpgradeMinorVersion": true
+                    }
+                },
+                {
+                    "apiVersion": "2018-06-30-preview",
+                    "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+                    "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '/Microsoft.GuestConfiguration/', variables('pwd-min-length-config-name'))]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "guestConfiguration": {
+                            "name": "[variables('pwd-min-length-config-name')]",
+                            "version": "1.*"
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2018-06-30-preview",
+                    "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+                    "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '/Microsoft.GuestConfiguration/', variables('pwd-min-age-config-name'))]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "guestConfiguration": {
+                            "name": "[variables('pwd-min-age-config-name')]",
+                            "version": "1.*"
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2018-06-30-preview",
+                    "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+                    "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '/Microsoft.GuestConfiguration/', variables('pwd-not-last-24-config-name'))]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "guestConfiguration": {
+                            "name": "[variables('pwd-not-last-24-config-name')]",
+                            "version": "1.*"
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2018-06-30-preview",
+                    "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+                    "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '/Microsoft.GuestConfiguration/', variables('pwd-without-reversible-encryption-config-name'))]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "guestConfiguration": {
+                            "name": "[variables('pwd-without-reversible-encryption-config-name')]",
+                            "version": "1.*"
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2018-06-30-preview",
+                    "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+                    "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '/Microsoft.GuestConfiguration/', variables('web-server-with-tls-1.1-config-name'))]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "guestConfiguration": {
+                            "name": "[variables('web-server-with-tls-1.1-config-name')]",
+                            "version": "1.*"
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2018-06-30-preview",
+                    "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+                    "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '/Microsoft.GuestConfiguration/', variables('pwd-max-age-config-name'))]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "guestConfiguration": {
+                            "name": "[variables('pwd-max-age-config-name')]",
+                            "version": "1.*"
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2018-06-30-preview",
+                    "type": "Microsoft.Compute/virtualMachines/providers/guestConfigurationAssignments",
+                    "name": "[concat(variables('virtualMachine-name-prefix'), copyindex(1), '/Microsoft.GuestConfiguration/', variables('pwd-complexity-config-name'))]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "guestConfiguration": {
+                            "name": "[variables('pwd-complexity-config-name')]",
+                            "version": "1.*"
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2015-05-01-preview",
+                    "name": "AzurePolicyforWindows",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
+                        "[variables('windows-dependency-extension-name')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.GuestConfiguration",
+                        "type": "ConfigurationforWindows",
+                        "typeHandlerVersion": "1.1",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {},
+                        "protectedSettings": {}
+                    }
+                },
+                {
+                    "type": "extensions",
                     "name": "[variables('encryption-extension-name')]",
                     "apiVersion": "2017-03-30",
                     "location": "[resourceGroup().location]",
                     "condition": "[equals(parameters('enable-encryption'), bool('true'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('dsc-join-to-domain-extension-name'))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('antimalware-extension-name'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('diagnostics-extension-name'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('networkWatcher-extension-name'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), variables('dsc-join-to-domain-extension-name'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('virtualMachine-name-prefix'), copyindex(1)), 'AzurePolicyforWindows')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Security",
