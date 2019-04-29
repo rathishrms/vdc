@@ -97,10 +97,17 @@
                 "description": "Boolean flag to turn on and off of RBAC."
             }
         },
-        "vnet-subnet-id": {
+        "vnet-id": {
             "type": "string",
             "metadata": {
-                "description": "Resource ID of virtual network subnet used for nodes and/or pods IP assignment."
+                "description": "Resource ID of virtual network"
+            }
+        },
+        "default-subnet-name": {
+            "type": "string",
+            "defaultValue": "default",
+            "metadata": {
+                "description": "Name of the private subnet inside the workload virtual network."
             }
         },
         "service-cidr": {
@@ -192,6 +199,7 @@
     "variables": {
         "auth-rule-resource-id": "[parameters('diagnostics-event-hub-auth-rule-id')]",
         "aks-cluster-name": "[concat(parameters('deployment-prefix'), '-k8s')]",
+        "subnet-id": "[concat(parameters('vnet-id'), '/subnets/', parameters('default-subnet-name'))]",
         "emptyContent": {},
         "omsAgentConfig": {
             "omsagent": {
@@ -256,7 +264,7 @@
                         "vmSize": "[parameters('agent-vm-size')]",
                         "osType": "[parameters('os-type')]",
                         "storageProfile": "ManagedDisks",
-                        "vnetSubnetID": "[parameters('vnet-subnet-id')]"
+                        "vnetSubnetID": "[variables('subnet-id')]"
                     }
                 ],
                 "servicePrincipalProfile": {

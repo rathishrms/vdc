@@ -175,6 +175,7 @@
                     },
                     "dependencies": [
                         "la",
+                        "workload-net",
                         "diagnostic-storage-account"
                     ]
                 },
@@ -220,8 +221,8 @@
         "deployment-name": "${general.shared-services.deployment-name}",
         "active-directory": {
             "vm-ip-address-start": "${general.shared-services.active-directory.vm-ip-address-start}",
-            "adds-vm1-hostname": "${general.shared-services.active-directory.vm1-hostname}",
-            "adds-vm2-hostname": "${general.shared-services.active-directory.vm2-hostname}",
+            "adds-vm1-hostname": "${general.shared-services.active-directory.adds-vm1-hostname}",
+            "adds-vm2-hostname": "${general.shared-services.active-directory.adds-vm2-hostname}",
             "resource-group-name": "${general.organization-name}-${general.shared-services.deployment-name}-active-directory-rg",
             "adds-vm1-resource-name": "${general.organization-name}-${general.shared-services.deployment-name}-${general.shared-services.active-directory.adds-vm1-hostname}",
             "discovery-custom-domain": "${general.shared-services.active-directory.discovery-custom-domain}",
@@ -537,13 +538,22 @@
                     "user-defined-route": "${workload.network.user-defined-routes[0].name}",
                     "service-endpoints": [
                         {
+                            "service": "Microsoft.EventHub"
+                        },
+                        {
                             "service": "Microsoft.Sql"
+                        },
+                        {
+                            "service": "Microsoft.KeyVault"
+                        },
+                        {
+                            "service": "Microsoft.Storage"
                         }
                     ]
                 }
             ],
             "dns-servers": [
-                "${shared-services.adds.vm-ip-address-start}"
+                "${shared-services.active-directory.vm-ip-address-start}"
             ]
         }
     }

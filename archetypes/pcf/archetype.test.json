@@ -14,10 +14,11 @@
         "shared-services": {
             "subscription-id": "00000000-0000-0000-0000-000000000000",
             "deployment-name": "ssvcs",
-            "adds": {
+            "active-directory": {
                 "vm-ip-address-start": "10.4.0.46",
                 "adds-vm1-hostname": "adds-vm1",
-                "adds-vm2-hostname": "adds-vm2"
+                "adds-vm2-hostname": "adds-vm2",
+                "domain-name": "contoso.com"
             },
             "network": {
                 "network-virtual-appliance": {
@@ -29,9 +30,6 @@
                         }
                     }
                 }            
-            },
-            "active-directory": {
-                "domain-name": "contoso.com"
             }
         },
         "workload": {

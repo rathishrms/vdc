@@ -250,7 +250,8 @@
         ],
         "mma-extension-name": "OMSExtension",
         "diagnostics-extension-name": "LinuxDiagnostic",
-        "cb-installation-extension-name": "installcustomscript"
+        "cb-installation-extension-name": "installcustomscript",
+        "tag-patching": "3rdSat7pm"
     },
     "resources": [
         {
@@ -451,7 +452,9 @@
             "apiVersion": "2017-03-30",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "[concat(variables('virtualMachine-name-prefix'), copyindex(1))]"
+                "computerName": "[concat(parameters('extension-name'), '-vm',copyindex(1))]",
+                "UpdateManagement": "[variables('tag-patching')]",
+                "layer": "Application"
             },
             "copy": {
                 "name": "vmLoop",

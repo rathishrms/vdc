@@ -169,7 +169,9 @@
         "mma-extension-name": "OMSExtension",
         "diagnostics-extension-name": "LinuxDiagnostic",
         "networkWatcher-extension-name": "NetworkWatcher",
-        "setup-kdc-extension-name": "KDCInstallation"
+        "setup-kdc-extension-name": "KDCInstallation",
+        "adds-pwsh-extension-name": "PwdPolicies",
+        "tag-patching": "3rdSat7pm"
     },
     "resources": [
         {
@@ -223,7 +225,9 @@
             "apiVersion": "2017-03-30",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "[concat(variables('virtualMachine-name-prefix'), copyindex(1))]"
+                "computerName": "[concat(parameters('extension-name'), '-vm',copyindex(1))]",
+                "UpdateManagement": "[variables('tag-patching')]",
+                "layer": "Application"
             },
             "copy": {
                 "name": "vmLoop",
@@ -1037,7 +1041,7 @@
                     "name": "[variables('setup-kdc-extension-name')]",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), '1'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyindex(1)))]",
                         "[variables('networkWatcher-extension-name')]"
                     ],
                     "apiVersion": "2017-03-30",
@@ -1086,7 +1090,7 @@
                             "resources": [
                                 {
                                     "type": "extensions",
-                                    "name": "PSOneWayTrustSetup",
+                                    "name": "[variables('adds-pwsh-extension-name')]",
                                     "apiVersion": "2017-03-30",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
@@ -1138,7 +1142,7 @@
                             "resources": [
                                 {
                                     "type": "extensions",
-                                    "name": "setupKDC",
+                                    "name": "[variables('setup-kdc-extension-name')]",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
                                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), '1'))]"
@@ -1190,7 +1194,7 @@
                             "resources": [
                                 {
                                     "type": "extensions",
-                                    "name": "PSOneWayTrustSetup",
+                                    "name": "[variables('adds-pwsh-extension-name')]",
                                     "apiVersion": "2017-03-30",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
@@ -1242,7 +1246,7 @@
                             "resources": [
                                 {
                                     "type": "extensions",
-                                    "name": "setupKDC",
+                                    "name": "[variables('setup-kdc-extension-name')]",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
                                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), '2'))]"
@@ -1292,7 +1296,7 @@
                             "resources": [
                                 {
                                     "type": "extensions",
-                                    "name": "setupKDC",
+                                    "name": "[variables('setup-kdc-extension-name')]",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
                                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), '1'))]"
@@ -1346,7 +1350,7 @@
                             "resources": [
                                 {
                                     "type": "extensions",
-                                    "name": "setupKDC",
+                                    "name": "[variables('setup-kdc-extension-name')]",
                                     "location": "[resourceGroup().location]",
                                     "dependsOn": [
                                         "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('virtualMachine-name-prefix'), copyIndex(1)))]"
