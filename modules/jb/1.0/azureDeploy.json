@@ -1006,6 +1006,9 @@
                 "name": "linuxVmLoop",
                 "count": "[parameters('linux-virtualMachine-count')]"
             },
+            "tags": {
+                "UpdateManagement": "[variables('tag-patching')]"
+            },
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/availabilitySets', variables('linux-availabilitySet-name'))]",
                 "[concat('Microsoft.Network/networkInterfaces/', concat(variables('linux-virtualMachine-name-prefix'), copyindex(1), '-nic'))]"
