@@ -68,24 +68,6 @@
             "metadata": {
                 "description": ""
             }
-        },
-        "deploy-azure-firewall-networkRules-collection": {
-            "type": "bool",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "azure-firewall-networkRules-collection": {
-            "type": "array",
-            "metadata": {
-                "description": ""
-            }
-        },
-        "shared-services-gateway-udr": {
-            "type": "array",
-            "metadata": {
-                "description": ""
-            }
         }
     },
     "variables": {

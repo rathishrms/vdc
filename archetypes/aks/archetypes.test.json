@@ -6,20 +6,16 @@
         "vdc-storage-account-name": "storage",
         "vdc-storage-account-rg": "vdc-storage-rg",
         "on-premises": {
-            "deployment-name": "onprem",
             "subscription-id": "00000000-0000-0000-0000-000000000000",
+            "deployment-name": "onprem",
             "region": "West US 2",
             "network": {
-                "address-prefix": "192.168.1.0/28",
-                "resource-group-name": "${general.organization-name}-${general.on-premises.deployment-name}-net-rg",
-                "virtual-gateway": {
-                    "gateway-name": "${general.organization-name}-${general.on-premises.deployment-name}-gw"
-                }
+                "address-prefix": "192.168.1.0/28"
             }
         },
         "shared-services": {
-            "deployment-name": "ssvcs",
             "subscription-id": "00000000-0000-0000-0000-000000000000",
+            "deployment-name": "ssvcs",
             "region": "West US 2",
             "active-directory": {
                 "vm-ip-address-start": "10.4.0.46"
@@ -60,14 +56,14 @@
                 "enable-http-application-routing": false,
                 "enable-oms-agent": true,
                 "service-principal-client-id": "00000000-0000-0000-0000-000000000000",
-                "service-principal-client-secret": "00000000-0000-0000-0000-000000000000",
+                "service-principal-client-secret": "",
                 "rbac-server-appid": "00000000-0000-0000-0000-000000000000",
                 "rbac-server-secret": "",
                 "rbac-client-appid": "00000000-0000-0000-0000-000000000000",
                 "rbac-tenant": "00000000-0000-0000-0000-000000000000",
-                "aks-cluster-admin-rbac-role-id": "0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8",
-                "aks-cluster-user-rbac-role-id": "4abbcc35-e782-43d8-92c5-2d3f1bd2253f",
-                "reader-rbac-role-id": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+                "aks-cluster-admin-rbac-role-id": "00000000-0000-0000-0000-000000000000",
+                "aks-cluster-user-rbac-role-id": "00000000-0000-0000-0000-000000000000",
+                "reader-rbac-role-id": "00000000-0000-0000-0000-000000000000",
                 "cluster-admin-group-id": "00000000-0000-0000-0000-000000000000",
                 "noc-user-group-id": "00000000-0000-0000-0000-000000000000",
                 "dev-user-group-id": "00000000-0000-0000-0000-000000000000",
@@ -89,7 +85,7 @@
                     {
                         "name": "aks-cluster-nrc-01",
                         "properties": {
-                            "priority": "100",
+                            "priority": "500",
                             "action": {
                                 "type": "Allow"
                             },
@@ -118,7 +114,7 @@
                     {
                         "name": "aks-cluster-01",
                         "properties": {
-                            "priority": 130,
+                            "priority": 500,
                             "action": {
                                 "type": "Allow"
                             },
@@ -218,7 +214,7 @@
                 },
                 {
                     "module": "event-hub",
-                    "resource-group-name": "${general.organization-name}-${workload.deployment-name}-la-rg",
+                    "resource-group-name": "${general.organization-name}-${workload.deployment-name}-diagnostics-rg",
                     "source": {
                         "version": "1.0"
                     },
@@ -338,7 +334,7 @@
                 {
                     "module": "create-cluster-rbac-role-bindings",
                     "type": "bash",
-                    "command": "scripts/aks/create-cluster-rbac-role-bindings.sh ${workload.kubernetes.cluster-name} ${workload.kubernetes.cluster-resource-group-name} 558eed0b-9358-483a-813c-aa7fc19b8f94 f8016c94-5774-4d07-910c-65bdc4d1412d Y Y",
+                    "command": "scripts/aks/create-cluster-rbac-role-bindings.sh ${workload.kubernetes.cluster-name} ${workload.kubernetes.cluster-resource-group-name} ${general.workload.kubernetes.cluster-admin-group-id} ${general.workload.kubernetes.noc-user-group-id} Y Y",
                     "dependencies": [
                         "scripts-pre-reqs"
                     ]
@@ -351,11 +347,7 @@
         "deployment-name": "${general.on-premises.deployment-name}",
         "region": "${general.on-premises.region}",
         "network": {
-            "address-prefix": "${general.on-premises.network.address-prefix}",
-            "resource-group-name": "${general.on-premises.network.resource-group-name}",
-            "virtual-gateway": {
-                "gateway-name": "${general.on-premises.network.virtual-gateway.gateway-name}"
-            }
+            "address-prefix": "${general.on-premises.network.address-prefix}"
         }
     },
     "shared-services": {
@@ -390,16 +382,7 @@
         "keyvault": {
             "name": "${general.workload.keyvault.name}",
             "secrets": "${general.workload.keyvault.secrets}",
-            "network-acls": {
-                "bypass": "AzureServices",
-                "defaultAction": "Deny",
-                "virtualNetworkRules": [
-                    {
-                        "subnet": "${shared-services.network.subnets[0].name}"
-                    }
-                ],
-                "ipRules": []
-            }
+            "network-acls": {}
         },
         "storage-account": {
             "network-acls": {

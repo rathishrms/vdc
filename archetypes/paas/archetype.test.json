@@ -53,7 +53,7 @@
             }
         },
         "workload": {
-            "subscription-id": "00000000-0000-0000-0000-000000000000",
+            "subscription-id": "00000000-0000-0000-0000-000000000000",       
             "deployment-name": "paas",
             "region": "West US 2",
             "azure-sql-configuration": {
@@ -222,10 +222,8 @@
     "shared-services": {
         "subscription-id": "${general.shared-services.subscription-id}",
         "deployment-name": "${general.shared-services.deployment-name}",
-        "adds": {
-            "vm-ip-address-start": "${general.shared-services.adds.vm-ip-address-start}"
-        },
         "active-directory": {
+            "vm-ip-address-start": "${general.shared-services.active-directory.vm-ip-address-start}",
             "domain-admin-user": "${general.shared-services.active-directory.domain-admin-user}",
             "domain-name": "${general.shared-services.active-directory.domain-name}"
         },
@@ -270,6 +268,12 @@
             "admin-user": "${general.workload.azure-sql-configuration.admin-user}",
             "aad-admin-objectId": "${general.workload.azure-sql-configuration.aad-admin-objectId}",
             "aad-admin-email": "${general.workload.azure-sql-configuration.aad-admin-email}"
+        },
+        "log-analytics": {
+            "region": "${general.workload.log-analytics.region}"
+        },
+        "automation-account": {
+            "region": "${general.workload.automation-account.region}"
         },
         "keyvault": {
             "secrets": "${general.workload.keyvault.secrets}",

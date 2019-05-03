@@ -2,6 +2,18 @@
     "$schema":"http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "la-resourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "OMS workspace resource identifier"
+            }
+        },
+        "storageAccount-resourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Diagnostic Storage Account resource identifier"
+            }
+        },
         "admin-username": {
             "type": "string",
             "metadata": {
@@ -15,10 +27,16 @@
             }
         },
         "aad-admin-objectId": {
-            "value": "${workload.azure-sql-configuration.aad-admin-objectId}"
+            "type": "string",
+            "metadata": {
+                "description": "AzureAD Admin ObjectId"
+            }
         },
         "aad-admin-email": {
-            "value": "${workload.azure-sql-configuration.aad-admin-email}"
+            "type": "string",
+            "metadata": {
+                "description": "AzureAD Admin Email"
+            }
         },
         "vnet-id": {
             "type": "string",
@@ -92,7 +110,7 @@
             "properties": {
                 "administratorType": "ActiveDirectory",
                 "login": "[parameters('aad-admin-email')]",
-                "sid": "[parameters('aad-user-object-id')]",
+                "sid": "[parameters('aad-admin-objectId')]",
                 "tenantId": "[subscription().tenantId]"
             }
         },
@@ -135,20 +153,20 @@
         },
         {
             "type": "Microsoft.Sql/servers/databases/providers/diagnosticSettings",
-            "name": "[concat(variables('server-name'), '/', variables('sql-server-properties').databases[copyIndex()].name, '/Microsoft.Insights/', 'service')]",
+            "name": "[concat(variables('server-name'), '/', parameters('sql-server-properties').databases[copyIndex()].name, '/Microsoft.Insights/', 'service')]",
             "apiVersion": "2017-05-01-preview",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Sql/servers/', variables('server-name'))]",
-                "[variables('sql-server-properties').databases[copyIndex()].name]"
+                "[parameters('sql-server-properties').databases[copyIndex()].name]"
             ],
             "copy": {
                 "name": "databases",
-                "count": "[length(variables('sql-server-properties').databases)]"
+                "count": "[length(parameters('sql-server-properties').databases)]"
             },
             "properties": {
-                "storageAccountId": "[resourceId(variables('oms-workspace-resourceGroup'), 'Microsoft.Storage/storageAccounts', variables('diagnostic-storageAccount-name'))]",
-                "workspaceId": "[resourceId(variables('oms-workspace-resourceGroup'), 'Microsoft.OperationalInsights/workspaces', variables('oms-workspace-name'))]",
+                "storageAccountId": "[parameters('storageAccount-resourceId')]",
+                "workspaceId": "[parameters('la-resourceId')]",
                 "logs": [
                     {
                         "category": "SQLInsights",

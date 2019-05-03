@@ -183,7 +183,15 @@
                                         "*.powershellgallery.com",
                                         "powershellgallery.com", 
                                         "*.msecnd.net",
-                                        "msecnd.net"
+                                        "msecnd.net",
+                                        "*.nuget.org",
+                                        "nuget.org",
+                                        "*.azureprofilerfrontdoor.cloudapp.net",
+                                        "azureprofilerfrontdoor.cloudapp.net",
+                                        "*.download.opensuse.org",
+                                        "download.opensuse.org",
+                                        "*.monitoring.azure.com",
+                                        "monitoring.azure.com"
                                     ]
                                 }
                             ]

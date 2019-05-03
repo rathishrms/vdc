@@ -73,5 +73,14 @@
     },
     "subscription-id": {
         "value": "${workload.subscription-id}"
+    },
+    "azure-firewall-resource-group": {
+        "value": "${shared-services.network.resource-group-name}"
+    },
+    "azure-firewall-name": {
+        "value": "${shared-services.network.network-virtual-appliance.azure-firewall.name}"
+    },
+    "shared-services-subscription-id": {
+        "value": "${shared-services.subscription-id}"
     }
 }

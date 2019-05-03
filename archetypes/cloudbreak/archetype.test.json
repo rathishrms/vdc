@@ -21,13 +21,15 @@
                 "vm-ip-address-start": "10.4.0.46",
                 "adds-vm1-hostname": "adds-vm1",
                 "adds-vm2-hostname": "adds-vm2",
+                "resource-group-name": "${general.organization-name}-${general.shared-services.deployment-name}-adds-rg",
+                "adds-vm1-resource-name": "${general.organization-name}-${general.shared-services.deployment-name}-${general.shared-services.active-directory.adds-vm1-hostname}",
                 "discovery-custom-domain": "contosocloud.com",
                 "domain-admin-user": "contoso",
                 "domain-name": "contoso.com"
             },
             "network": {
                 "network-virtual-appliance": {
-                    "egress-ip": "10.4.1.4",                    
+                    "egress-ip": "10.4.1.4",
                     "custom-ubuntu": {
                         "egress": {
                             "ip": "10.4.0.20",
@@ -41,9 +43,9 @@
             }
         },
         "workload": {
-            "subscription-id": "00000000-0000-0000-0000-000000000000",       
+            "subscription-id": "00000000-0000-0000-0000-000000000000",
             "deployment-name": "cb",
-            "region":"Central US",
+            "region": "West US 2",
             "vm-configuration": {
                 "local-admin-user": "admin-user",
                 "enable-encryption": false,
@@ -73,7 +75,7 @@
         }
     },
     "orchestration": {
-        "modules-to-deploy":[
+        "modules-to-deploy": [
             "diagnostic-storage-account",
             "la",
             "automation-account",
@@ -216,15 +218,15 @@
         },
         "allow-rdp-address-range": "${general.on-premises.allow-rdp-address-range}"
     },
-    "shared-services":{
+    "shared-services": {
         "subscription-id": "${general.shared-services.subscription-id}",
         "deployment-name": "${general.shared-services.deployment-name}",
         "active-directory": {
             "vm-ip-address-start": "${general.shared-services.active-directory.vm-ip-address-start}",
             "adds-vm1-hostname": "${general.shared-services.active-directory.adds-vm1-hostname}",
             "adds-vm2-hostname": "${general.shared-services.active-directory.adds-vm2-hostname}",
-            "resource-group-name": "${general.organization-name}-${general.shared-services.deployment-name}-active-directory-rg",
-            "adds-vm1-resource-name": "${general.organization-name}-${general.shared-services.deployment-name}-${general.shared-services.active-directory.adds-vm1-hostname}",
+            "resource-group-name": "${general.shared-services.active-directory.resource-group-name}",
+            "adds-vm1-resource-name": "${general.shared-services.active-directory.adds-vm1-resource-name}",
             "discovery-custom-domain": "${general.shared-services.active-directory.discovery-custom-domain}",
             "domain-admin-user": "${general.shared-services.active-directory.domain-admin-user}",
             "domain-name": "${general.shared-services.active-directory.domain-name}"
@@ -260,8 +262,8 @@
             "name": "${general.organization-name}-${general.shared-services.deployment-name}-kv"
         }
     },
-    "workload":{  
-        "subscription-id": "${general.workload.subscription-id}",       
+    "workload": {
+        "subscription-id": "${general.workload.subscription-id}",
         "deployment-name": "${general.workload.deployment-name}",
         "region": "${general.workload.region}",
         "vm-configuration": {
@@ -322,7 +324,7 @@
                                 "destinationAddressPrefixes": [],
                                 "destinationAddressPrefix": "",
                                 "destinationPortRange": "443",
-                                "destinationPortRanges":[],
+                                "destinationPortRanges": [],
                                 "destinationApplicationSecurityGroups": [
                                     {
                                         "name": "${workload.network.application-security-groups[0].name}"
@@ -334,7 +336,7 @@
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -344,7 +346,7 @@
                                 "destinationAddressPrefixes": [],
                                 "destinationAddressPrefix": "",
                                 "destinationPortRange": "80",
-                                "destinationPortRanges":[],
+                                "destinationPortRanges": [],
                                 "destinationApplicationSecurityGroups": [
                                     {
                                         "name": "${workload.network.application-security-groups[0].name}"
@@ -356,7 +358,7 @@
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -366,7 +368,7 @@
                                 "destinationAddressPrefixes": [],
                                 "destinationAddressPrefix": "",
                                 "destinationPortRange": "9443",
-                                "destinationPortRanges":[],
+                                "destinationPortRanges": [],
                                 "destinationApplicationSecurityGroups": [
                                     {
                                         "name": "${workload.network.application-security-groups[0].name}"
@@ -378,7 +380,7 @@
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -388,7 +390,7 @@
                                 "destinationAddressPrefixes": [],
                                 "destinationAddressPrefix": "",
                                 "destinationPortRange": "8443",
-                                "destinationPortRanges":[],
+                                "destinationPortRanges": [],
                                 "destinationApplicationSecurityGroups": [
                                     {
                                         "name": "${workload.network.application-security-groups[0].name}"
@@ -400,7 +402,7 @@
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -410,7 +412,7 @@
                                 "destinationAddressPrefixes": [],
                                 "destinationAddressPrefix": "",
                                 "destinationPortRange": "22",
-                                "destinationPortRanges":[],
+                                "destinationPortRanges": [],
                                 "destinationApplicationSecurityGroups": [
                                     {
                                         "name": "${workload.network.application-security-groups[0].name}"
@@ -422,7 +424,7 @@
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -432,7 +434,7 @@
                                 "destinationAddressPrefixes": [],
                                 "destinationAddressPrefix": "",
                                 "destinationPortRange": "22",
-                                "destinationPortRanges":[],
+                                "destinationPortRanges": [],
                                 "destinationApplicationSecurityGroups": [
                                     {
                                         "name": "${workload.network.application-security-groups[1].name}"
@@ -444,7 +446,7 @@
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -454,7 +456,7 @@
                                 "destinationAddressPrefixes": [],
                                 "destinationAddressPrefix": "",
                                 "destinationPortRange": "754",
-                                "destinationPortRanges":[],
+                                "destinationPortRanges": [],
                                 "destinationApplicationSecurityGroups": [
                                     {
                                         "name": "${workload.network.application-security-groups[1].name}"
@@ -466,7 +468,7 @@
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -476,15 +478,15 @@
                                 "destinationAddressPrefix": "*",
                                 "destinationAddressPrefixes": [],
                                 "destinationPortRange": "*",
-                                "destinationPortRanges":[],
-                                "destinationApplicationSecurityGroups":[],
+                                "destinationPortRanges": [],
+                                "destinationApplicationSecurityGroups": [],
                                 "direction": "Inbound",
                                 "priority": 4095,
                                 "protocol": "Tcp",
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "Internet",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         },
                         {
@@ -494,15 +496,15 @@
                                 "destinationAddressPrefix": "VirtualNetwork",
                                 "destinationAddressPrefixes": [],
                                 "destinationPortRange": "*",
-                                "destinationPortRanges":[],
-                                "destinationApplicationSecurityGroups":[],
+                                "destinationPortRanges": [],
+                                "destinationApplicationSecurityGroups": [],
                                 "direction": "Inbound",
                                 "priority": 4096,
                                 "protocol": "Tcp",
                                 "sourcePortRange": "*",
                                 "sourcePortRanges": [],
                                 "sourceAddressPrefix": "VirtualNetwork",
-                                "sourceApplicationSecurityGroups":[]
+                                "sourceApplicationSecurityGroups": []
                             }
                         }
                     ]

@@ -78,7 +78,6 @@
             "kv",
             "vmapp-web-lb",
             "vmapp-biz-lb",
-            "app-gateway",
             "sqlserver-alwayson"
         ],
         "module-validation-dependencies": [

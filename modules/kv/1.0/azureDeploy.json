@@ -96,14 +96,15 @@
         }
     },
     "variables": {
+        "deploy-service-endpoint": "[not(empty(parameters('network-acls')))]",
         "key-vault-name": "[concat(parameters('deployment-prefix'), '-kv')]",
         "virtualNetwork-rules": {
             "copy": [
                 {
                     "name": "virtualNetworkRules",
-                    "count": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), 1, length(parameters('network-acls').virtualNetworkRules))]",
+                    "count": "[if(equals(variables('deploy-service-endpoint'), bool('false')), 1, if(equals(length(parameters('network-acls').virtualNetworkRules), 0), 1, length(parameters('network-acls').virtualNetworkRules)))]",
                     "input": {
-                        "id": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), concat(parameters('vnet-id'), '/subnets/', parameters('network-acls').virtualNetworkRules[copyIndex('virtualNetworkRules')].subnet))]"
+                        "id": "[if(equals(variables('deploy-service-endpoint'), bool('false')), json('null'), if(equals(length(parameters('network-acls').virtualNetworkRules), 0), json('null'), concat(parameters('vnet-id'), '/subnets/', parameters('network-acls').virtualNetworkRules[copyIndex('virtualNetworkRules')].subnet)))]"
                     }
                 }
             ]
@@ -130,10 +131,10 @@
                     "family": "A"
                 },
                 "networkAcls": {
-                    "bypass": "[parameters('network-acls').bypass]",
-                    "defaultAction": "[parameters('network-acls').defaultAction]",
-                    "virtualNetworkRules": "[if(equals(length(parameters('network-acls').virtualNetworkRules), 0), variables('empty-array'), variables('virtualNetwork-rules').virtualNetworkRules)]",
-                    "ipRules": "[if(equals(length(parameters('network-acls').ipRules), 0), variables('empty-array'), parameters('network-acls').ipRules)]"
+                    "bypass": "[if(not(variables('deploy-service-endpoint')), json('null'), parameters('network-acls').bypass)]",
+                    "defaultAction": "[if(not(variables('deploy-service-endpoint')), json('null'), parameters('network-acls').defaultAction)]",
+                    "virtualNetworkRules": "[if(not(variables('deploy-service-endpoint')), json('null'), if(equals(length(parameters('network-acls').virtualNetworkRules), 0), variables('empty-array'), variables('virtualNetwork-rules').virtualNetworkRules))]",
+                    "ipRules": "[if(not(variables('deploy-service-endpoint')), json('null'), if(equals(length(parameters('network-acls').ipRules), 0), variables('empty-array'), parameters('network-acls').ipRules))]"
                 }
             },
             "resources": [

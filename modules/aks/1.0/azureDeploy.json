@@ -8,12 +8,6 @@
                 "description": "Deployment prefix. E.g. Organization-DeploymentType"
             }
         },
-        "shared-services-deployment-prefix": {
-            "type": "string",
-            "metadata": {
-                "description": "Deployment prefix for Shared Services. E.g. Organization-DeploymentType"
-            }
-        },
         "location": {
             "type": "string",
             "metadata": {
@@ -128,10 +122,10 @@
                 "description": "A CIDR notation IP for Docker bridge."
             }
         },
-        "la-workspace-id": {
+        "la-resourceId": {
             "type": "string",
             "metadata": {
-                "description": "WorkspaceId or CustomerId value of OMS. This value is referenced in OMS VM Extension"
+                "description": "Resource Identifier of Log Analytics"
             }
         },
         "diagnostics-event-hub-name": {
@@ -194,6 +188,21 @@
             "metadata": {
                 "description": "AKS Cluster deployment Subcription Id"
             }
+        },
+        "shared-services-subscription-id": {
+            "type": "string"
+        },
+        "azure-firewall-resource-group": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure Firewall Resource Group name"
+            }
+        },
+        "azure-firewall-name": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure Firewall Resource name"
+            }
         }
     },
     "variables": {
@@ -205,20 +214,18 @@
             "omsagent": {
                 "enabled": true,
                 "config": {
-                    "logAnalyticsWorkspaceResourceID": "[parameters('la-workspace-id')]"
+                    "logAnalyticsWorkspaceResourceID": "[parameters('la-resourceId')]"
                 }
             }
-        },
-        "azure-fw-resource-group": "[concat(parameters('shared-services-deployment-prefix'), '-net-rg')]",
-        "azure-fw-name": "[concat(parameters('shared-services-deployment-prefix'), '-az-fw')]"
+        }
     },
     "resources": [
         {
             "apiVersion": "2017-05-10",
             "name": "nestedDeployCreateAzureApplicationRules",
             "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[concat(parameters('shared-services-deployment-prefix'),'-net-rg')]",
-            "subscriptionId": "[parameters('subscription-id')]",
+            "resourceGroup": "[parameters('azure-firewall-resource-group')]",
+            "subscriptionId": "[parameters('shared-services-subscription-id')]",
             "dependsOn": [],
             "properties": {
               "mode": "Incremental",
@@ -232,12 +239,12 @@
                     "type": "Microsoft.Network/azureFirewalls",
                     "apiVersion": "2018-08-01",
                     "location": "[resourceGroup().location]",
-                    "name": "[variables('azure-fw-name')]",
+                    "name": "[parameters('azure-firewall-name')]",
                     "properties": {
-                        "ipConfigurations": "[reference(resourceId(parameters('subscription-id'), variables('azure-fw-resource-group'), 'Microsoft.Network/azureFirewalls', variables('azure-fw-name')), '2018-08-01').ipConfigurations]",
-                        "natRuleCollections": "[reference(resourceId(parameters('subscription-id'), variables('azure-fw-resource-group'), 'Microsoft.Network/azureFirewalls', variables('azure-fw-name')), '2018-08-01').natRuleCollections]",
-                        "applicationRuleCollections": "[concat(reference(resourceId(parameters('subscription-id'), variables('azure-fw-resource-group'), 'Microsoft.Network/azureFirewalls', variables('azure-fw-name')), '2018-08-01').applicationRuleCollections, parameters('azure-firewall-application-rule-collection'))]",
-                        "networkRuleCollections": "[concat(reference(resourceId(parameters('subscription-id'), variables('azure-fw-resource-group'), 'Microsoft.Network/azureFirewalls', variables('azure-fw-name')), '2018-08-01').networkRuleCollections, parameters('azure-firewall-network-rule-collection'))]"
+                        "ipConfigurations": "[reference(resourceId(parameters('shared-services-subscription-id'), parameters('azure-firewall-resource-group'), 'Microsoft.Network/azureFirewalls', parameters('azure-firewall-name')), '2018-08-01').ipConfigurations]",
+                        "natRuleCollections": "[reference(resourceId(parameters('shared-services-subscription-id'), parameters('azure-firewall-resource-group'), 'Microsoft.Network/azureFirewalls', parameters('azure-firewall-name')), '2018-08-01').natRuleCollections]",
+                        "applicationRuleCollections": "[concat(reference(resourceId(parameters('shared-services-subscription-id'), parameters('azure-firewall-resource-group'), 'Microsoft.Network/azureFirewalls', parameters('azure-firewall-name')), '2018-08-01').applicationRuleCollections, parameters('azure-firewall-application-rule-collection'))]",
+                        "networkRuleCollections": "[concat(reference(resourceId(parameters('shared-services-subscription-id'), parameters('azure-firewall-resource-group'), 'Microsoft.Network/azureFirewalls', parameters('azure-firewall-name')), '2018-08-01').networkRuleCollections, parameters('azure-firewall-network-rule-collection'))]"
                     }
                   }
                 ]
@@ -283,7 +290,7 @@
                     "serverAppSecret": "[parameters('rbac-server-secret')]",
                     "tenantID": "[parameters('rbac-tenant')]"
                 },
-                "addonProfiles": "[if( empty(parameters('la-workspace-id')) , variables('emptyContent'), variables('omsAgentConfig'))]"
+                "addonProfiles": "[if( empty(parameters('la-resourceId')) , variables('emptyContent'), variables('omsAgentConfig'))]"
                 
             },
             "resources": [
@@ -295,7 +302,7 @@
                     ],
                     "apiVersion": "2017-05-01-preview",
                     "properties": {
-                        "workspaceId": "[parameters('la-workspace-id')]",
+                        "workspaceId": "[parameters('la-resourceId')]",
                         "storageAccountId": "[parameters('storageAccount-resourceId')]",
                         "eventHubName": "[parameters('diagnostics-event-hub-name')]",
                         "eventHubAuthorizationRuleId": "[parameters('diagnostics-event-hub-auth-rule-id')]",
