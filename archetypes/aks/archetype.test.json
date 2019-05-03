@@ -666,7 +666,7 @@
             "sku": "${general.workload.diagnostics.event-hub.sku}"
         },
         "diagnostics": {
-            "resource-group-name": "${workload.resource-group-prefix}-aks-la-rg",
+            "resource-group-name": "${workload.resource-group-prefix}-aks-diagnostics-rg",
             "storage": {
                 "name": "${general.organization-name}diagnosticsstorage"
             },
